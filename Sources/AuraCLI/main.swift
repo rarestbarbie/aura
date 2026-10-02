@@ -26,7 +26,7 @@ import SystemPackage
     @Option(
         name: .shortAndLong,
         help: """
-        Output file path (e.g. 'atmosphere.bin.gz' or 'atmospheres.bin.gz') or directory to write archive to.
+        Output file path (e.g. 'atmosphere.aura' or 'atmospheres.aura') or directory to write archive to.
         """
     ) var output: String?
 
@@ -47,11 +47,13 @@ import SystemPackage
 
         let outString: String
         if let output: String = self.output {
-            if output.hasSuffix(".bin.gz") || output.hasSuffix(".gz") {
+            if output.hasSuffix(".aura") || output.hasSuffix(".bin.gz") || output.hasSuffix(
+                    ".gz"
+                ) {
                 outString = output
             } else {
-                let filename: String = atmosphereConfigs.count > 1 ? "atmospheres.bin.gz" : """
-                atmosphere.bin.gz
+                let filename: String = atmosphereConfigs.count > 1 ? "atmospheres.aura" : """
+                atmosphere.aura
                 """
                 outString = output.hasSuffix(
                     "/"
@@ -59,9 +61,9 @@ import SystemPackage
             }
         } else {
             if atmosphereConfigs.count == 1 {
-                outString = "Public/\(atmosphereConfigs[0].name)/Atmosphere/atmosphere.bin.gz"
+                outString = "Public/\(atmosphereConfigs[0].name)/Atmosphere/atmosphere.aura"
             } else {
-                outString = "Public/Atmospheres/atmospheres.bin.gz"
+                outString = "Public/Atmospheres/atmospheres.aura"
             }
         }
 
