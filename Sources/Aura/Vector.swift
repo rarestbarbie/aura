@@ -1,5 +1,10 @@
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 1)
+#if canImport(Darwin)
+import func Darwin.atan2
+#elseif canImport(Glibc)
 import func Glibc.atan2
+#elseif canImport(Musl)
+import func Musl.atan2
+#endif
 
 infix operator <> :MultiplicationPrecedence // dot product
 infix operator >< :MultiplicationPrecedence // cross product

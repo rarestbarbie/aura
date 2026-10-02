@@ -1,28 +1,23 @@
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/elementary-functions.swift.gyb", line: 1)
+#if canImport(Darwin)
+import Darwin
+typealias Glibc = Darwin
+#elseif canImport(Glibc)
+import Glibc
 import func Glibc.atan2
 import func Glibc.pow
-
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/elementary-functions.swift.gyb", line: 7)
-
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/elementary-functions.swift.gyb", line: 9)
 import func Glibc.sqrt
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/elementary-functions.swift.gyb", line: 9)
 import func Glibc.log
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/elementary-functions.swift.gyb", line: 9)
 import func Glibc.exp
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/elementary-functions.swift.gyb", line: 9)
 import func Glibc.sin
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/elementary-functions.swift.gyb", line: 9)
 import func Glibc.cos
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/elementary-functions.swift.gyb", line: 9)
 import func Glibc.tan
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/elementary-functions.swift.gyb", line: 9)
 import func Glibc.asin
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/elementary-functions.swift.gyb", line: 9)
 import func Glibc.acos
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/elementary-functions.swift.gyb", line: 9)
 import func Glibc.atan
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/elementary-functions.swift.gyb", line: 11)
+#elseif canImport(Musl)
+import Musl
+typealias Glibc = Musl
+#endif
 
 protocol ElementaryFunctions 
 {
