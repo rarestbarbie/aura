@@ -1,6 +1,6 @@
 <div align="center">
 
-🧪 &nbsp; **aura** &nbsp; 🧪
+🪐 &nbsp; **aura** &nbsp; 🪐
 
 a swift library abd command-line tool for precomputing multi-spectral atmospheric scattering tables
 
