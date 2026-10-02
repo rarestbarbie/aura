@@ -1306,9 +1306,11 @@ extension Table.Scattering: CustomStringConvertible {
                             [\(z), \(y)]:
                         \((0 ..< self.size.x).map {
                                 (x: Int) in
-                                let color: Vector3<F> = self.buffer[(
+                                let color: Vector3<F> = self.buffer[
+                                    (
                                         z * self.size.y + y
-                                    ) * self.size.x + x]
+                                    ) * self.size.x + x
+                                ]
                                 return """
                                         [\(Highlight.pad("\(x)", left: 3))]: \(
                                     Highlight.swatch(color)

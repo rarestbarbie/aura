@@ -11,6 +11,7 @@ let package: Package = .init(
     dependencies: [
         .package(url: "https://github.com/ordo-one/dollup", from: "1.0.1"),
 
+        .package(url: "https://github.com/rarestype/h", from: "1.0.1"),
         .package(url: "https://github.com/rarestype/swift-io", from: "3.2.0"),
         .package(url: "https://github.com/rarestype/swift-ion", from: "2.0.0"),
         .package(url: "https://github.com/rarestype/swift-json", from: "3.5.0"),
@@ -31,6 +32,14 @@ let package: Package = .init(
             dependencies: [
                 .target(name: "Aura"),
                 .product(name: "System_ArgumentParser", package: "swift-io"),
+            ]
+        ),
+        .executableTarget(
+            name: "AuraGoldenTests",
+            dependencies: [
+                .target(name: "Aura"),
+                .product(name: "CRC", package: "h"),
+                .product(name: "SystemIO", package: "swift-io"),
             ]
         ),
         .testTarget(
