@@ -1,0 +1,5 @@
+module CZlib [system] {
+    header "czlib.h"
+    link "z"
+    export *
+}

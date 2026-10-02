@@ -61,6 +61,23 @@ public enum AtmosphereBaker {
             }
         }
 
+        let compressedScat: [UInt8] = TableCompression.compress(
+            simd4: scatBuffer,
+            width: atmosphere.resolution.scattering.x,
+            height: atmosphere.resolution.scattering.y,
+            depth: atmosphere.resolution.scattering.z
+        )
+        let scatGzPath: FilePath = directory.appending("scattering.bin.gz")
+        _ = try scatGzPath.open(
+            .writeOnly,
+            permissions: (.rw, .rw, .r),
+            options: [.create, .truncate]
+        ) { descriptor in
+            try compressedScat.withUnsafeBytes { raw in
+                try descriptor.writeAll(raw)
+            }
+        }
+
         // 3. irradiance.bin
         let irradBuffer: [SIMD4<Float>] = irradiance.buffer.map {
             SIMD4<Float>(Float($0.x), Float($0.y), Float($0.z), 1.0)

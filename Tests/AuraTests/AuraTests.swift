@@ -61,4 +61,76 @@ import Ion
         #expect(config.radius_bottom == 6360000.0)
         #expect(config.mie_g == 0.8)
     }
+
+    @Test static func tableCompressionRoundtrip() throws {
+        // Create synthetic 3D volume with smooth gradients (like scattering table)
+        let width: Int = 32
+        let height: Int = 16
+        let depth: Int = 4
+        var data: [SIMD4<Float>] = []
+        data.reserveCapacity(width * height * depth)
+
+        for z in 0 ..< depth {
+            for y in 0 ..< height {
+                for x in 0 ..< width {
+                    let fx: Float = Float(x) / Float(width)
+                    let fy: Float = Float(y) / Float(height)
+                    let fz: Float = Float(z) / Float(depth)
+                    data.append(SIMD4<Float>(fx * 1.5, fy * 2.0, fz * 0.8, (fx + fy) * 0.2))
+                }
+            }
+        }
+
+        let compressed: [UInt8] = TableCompression.compress(
+            simd4: data,
+            width: width,
+            height: height,
+            depth: depth
+        )
+
+        #expect(compressed.count < data.count * MemoryLayout<SIMD4<Float>>.size)
+
+        let decompressed: [SIMD4<Float>] = try TableCompression.decompress(
+            archive: compressed,
+            width: width,
+            height: height,
+            depth: depth
+        )
+
+        #expect(decompressed.count == data.count)
+        #expect(decompressed == data)
+    }
+
+    @Test static func tableCompression2DRoundtrip() throws {
+        // Test 2D table (e.g. transmittance / irradiance)
+        let width: Int = 64
+        let height: Int = 16
+        var data: [SIMD4<Float>] = []
+        data.reserveCapacity(width * height)
+
+        for y in 0 ..< height {
+            for x in 0 ..< width {
+                let fx: Float = Float(x) / Float(width)
+                let fy: Float = Float(y) / Float(height)
+                data.append(SIMD4<Float>(fx * 1.5, fy * 2.0, (fx + fy) * 0.5, 1.0))
+            }
+        }
+
+        let compressed: [UInt8] = TableCompression.compress(
+            simd4: data,
+            width: width,
+            height: height,
+            depth: 1
+        )
+
+        let decompressed: [SIMD4<Float>] = try TableCompression.decompress(
+            archive: compressed,
+            width: width,
+            height: height,
+            depth: 1
+        )
+
+        #expect(decompressed.count == data.count)
+        #expect(decompressed == data)
+    }
 }

@@ -15,8 +15,13 @@ let package: Package = .init(
     ],
     targets: [
         .target(
+            name: "CZlib",
+            linkerSettings: [.linkedLibrary("z")]
+        ),
+        .target(
             name: "Aura",
             dependencies: [
+                .target(name: "CZlib"),
                 .product(name: "Ion", package: "swift-ion"),
                 .product(name: "JSON", package: "swift-json"),
                 .product(name: "SystemIO", package: "swift-io"),
