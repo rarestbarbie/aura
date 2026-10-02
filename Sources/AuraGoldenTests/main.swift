@@ -118,26 +118,27 @@ import SystemPackage
             fatalError("Verification failed: Scattering CRC32 mismatch!")
         }
 
-        // 5. Check against external raw golden files if present
-        let goldenDirEnv: String = ProcessInfo.processInfo.environment[
-            "GOLDEN_TABLES_DIR"
-        ] ?? "/swift/diannamy-engine/assets/tables/atmospheric-scattering"
-        let goldenDir: FilePath = .init(goldenDirEnv)
-        if FileManager.default.fileExists(atPath: goldenDir.string) {
-            print("5. Comparing float-by-float against golden files in '\(goldenDir)'...")
-            try verifyAgainstExternalGolden(
-                dir: goldenDir,
-                transmittance: transTable,
-                irradiance: irradTable,
-                scattering: scatTable
-            )
-            print("   Bit-for-bit exact match across all 4,263,936 floating-point values!")
-        } else {
-            print(
-                """
-                5. External golden files directory not present (skipping raw float-by-float file diff).
-                """
-            )
+        // 5. Check against external raw golden files if explicitly provided
+        if let goldenDirEnv: String = ProcessInfo.processInfo.environment[
+                "GOLDEN_TABLES_DIR"
+            ] {
+            let goldenDir: FilePath = .init(goldenDirEnv)
+            if FileManager.default.fileExists(atPath: goldenDir.string) {
+                print("5. Comparing float-by-float against golden files in '\(goldenDir)'...")
+                try verifyAgainstExternalGolden(
+                    dir: goldenDir,
+                    transmittance: transTable,
+                    irradiance: irradTable,
+                    scattering: scatTable
+                )
+                print("   Bit-for-bit exact match across all 4,263,936 floating-point values!")
+            } else {
+                print(
+                    """
+                    5. GOLDEN_TABLES_DIR specified but '\(goldenDir)' does not exist (skipping).
+                    """
+                )
+            }
         }
 
         print("6. Verifying archive serialization and deserialization roundtrip...")

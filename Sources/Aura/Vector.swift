@@ -14,7 +14,6 @@ infix operator &>< : MultiplicationPrecedence // wrapping cross product
 infix operator ~~ : ComparisonPrecedence     // distance test
 infix operator !~ : ComparisonPrecedence     // distance test
 
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 15)
 
 extension FixedWidthInteger {
     // rounds up to the next power of two, with 0 rounding up to 1.
@@ -42,11 +41,9 @@ extension FloatingPoint {
 }
 
 
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 54)
 struct Vector2<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar: SIMDScalar {
     var storage: SIMD2<Scalar>
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 59)
     var x: Scalar {
         get {
             self.storage.x
@@ -55,7 +52,6 @@ struct Vector2<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
             self.storage.x = x
         }
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 59)
     var y: Scalar {
         get {
             self.storage.y
@@ -64,7 +60,6 @@ struct Vector2<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
             self.storage.y = y
         }
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 71)
 
     var tuple: (Scalar, Scalar) {
         (self.x, self.y)
@@ -74,7 +69,6 @@ struct Vector2<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
         "\(self.tuple)"
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 97)
 
     subscript(index: Int) -> Scalar {
         self.storage[index]
@@ -105,11 +99,8 @@ struct Vector2<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
     init(from decoder: Decoder) throws {
         let serialized: KeyedDecodingContainer<CodingKeys> =
         try decoder.container(keyedBy: CodingKeys.self)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 135)
         let x: Scalar = try serialized.decode(Scalar.self, forKey: .x)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 135)
         let y: Scalar = try serialized.decode(Scalar.self, forKey: .y)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 137)
 
         self.init(x, y)
     }
@@ -117,11 +108,8 @@ struct Vector2<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
     func encode(to encoder: Encoder) throws {
         var serialized: KeyedEncodingContainer<CodingKeys> =
         encoder.container(keyedBy: CodingKeys.self)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 146)
         try serialized.encode(self.x, forKey: .x)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 146)
         try serialized.encode(self.y, forKey: .y)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 148)
     }
 }
 
@@ -158,7 +146,6 @@ extension Vector2 where Scalar: FixedWidthInteger {
         return .init(.zero)
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &<< (lhs: Vector2<Scalar>, rhs: Vector2<Scalar>)
     -> Vector2<Scalar> {
         return .init(lhs.storage &<< rhs.storage)
@@ -178,7 +165,6 @@ extension Vector2 where Scalar: FixedWidthInteger {
     static func &<<= (lhs: inout Vector2<Scalar>, rhs: Scalar) {
         lhs.storage &<<= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &>> (lhs: Vector2<Scalar>, rhs: Vector2<Scalar>)
     -> Vector2<Scalar> {
         return .init(lhs.storage &>> rhs.storage)
@@ -198,7 +184,6 @@ extension Vector2 where Scalar: FixedWidthInteger {
     static func &>>= (lhs: inout Vector2<Scalar>, rhs: Scalar) {
         lhs.storage &>>= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &+ (lhs: Vector2<Scalar>, rhs: Vector2<Scalar>)
     -> Vector2<Scalar> {
         return .init(lhs.storage &+ rhs.storage)
@@ -218,7 +203,6 @@ extension Vector2 where Scalar: FixedWidthInteger {
     static func &+= (lhs: inout Vector2<Scalar>, rhs: Scalar) {
         lhs.storage &+= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &- (lhs: Vector2<Scalar>, rhs: Vector2<Scalar>)
     -> Vector2<Scalar> {
         return .init(lhs.storage &- rhs.storage)
@@ -238,7 +222,6 @@ extension Vector2 where Scalar: FixedWidthInteger {
     static func &-= (lhs: inout Vector2<Scalar>, rhs: Scalar) {
         lhs.storage &-= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &* (lhs: Vector2<Scalar>, rhs: Vector2<Scalar>)
     -> Vector2<Scalar> {
         return .init(lhs.storage &* rhs.storage)
@@ -258,7 +241,6 @@ extension Vector2 where Scalar: FixedWidthInteger {
     static func &*= (lhs: inout Vector2<Scalar>, rhs: Scalar) {
         lhs.storage &*= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func / (lhs: Vector2<Scalar>, rhs: Vector2<Scalar>)
     -> Vector2<Scalar> {
         return .init(lhs.storage / rhs.storage)
@@ -278,7 +260,6 @@ extension Vector2 where Scalar: FixedWidthInteger {
     static func /= (lhs: inout Vector2<Scalar>, rhs: Scalar) {
         lhs.storage /= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func % (lhs: Vector2<Scalar>, rhs: Vector2<Scalar>)
     -> Vector2<Scalar> {
         return .init(lhs.storage % rhs.storage)
@@ -298,7 +279,6 @@ extension Vector2 where Scalar: FixedWidthInteger {
     static func %= (lhs: inout Vector2<Scalar>, rhs: Scalar) {
         lhs.storage %= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 234)
 
     func roundedUp(exponent: Int) -> Vector2<Scalar> {
         let mask: Scalar                 = .max &<< exponent
@@ -321,15 +301,12 @@ extension Vector2 where Scalar: FixedWidthInteger {
 }
 
 extension Vector2 where Scalar: ExpressibleByIntegerLiteral {
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 262)
     static var i: Self {
         .init(1, 0)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 262)
     static var j: Self {
         .init(0, 1)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 268)
 }
 
 extension Vector2 where Scalar: FloatingPoint {
@@ -341,7 +318,6 @@ extension Vector2 where Scalar: FloatingPoint {
         return .init(-operand.storage)
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 285)
     static func + (lhs: Vector2<Scalar>, rhs: Vector2<Scalar>)
     -> Vector2<Scalar> {
         return .init(lhs.storage + rhs.storage)
@@ -361,7 +337,6 @@ extension Vector2 where Scalar: FloatingPoint {
     static func += (lhs: inout Vector2<Scalar>, rhs: Scalar) {
         lhs.storage += rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 285)
     static func - (lhs: Vector2<Scalar>, rhs: Vector2<Scalar>)
     -> Vector2<Scalar> {
         return .init(lhs.storage - rhs.storage)
@@ -381,7 +356,6 @@ extension Vector2 where Scalar: FloatingPoint {
     static func -= (lhs: inout Vector2<Scalar>, rhs: Scalar) {
         lhs.storage -= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 285)
     static func * (lhs: Vector2<Scalar>, rhs: Vector2<Scalar>)
     -> Vector2<Scalar> {
         return .init(lhs.storage * rhs.storage)
@@ -401,7 +375,6 @@ extension Vector2 where Scalar: FloatingPoint {
     static func *= (lhs: inout Vector2<Scalar>, rhs: Scalar) {
         lhs.storage *= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 285)
     static func / (lhs: Vector2<Scalar>, rhs: Vector2<Scalar>)
     -> Vector2<Scalar> {
         return .init(lhs.storage / rhs.storage)
@@ -421,7 +394,6 @@ extension Vector2 where Scalar: FloatingPoint {
     static func /= (lhs: inout Vector2<Scalar>, rhs: Scalar) {
         lhs.storage /= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 315)
 
     func addingProduct(_ lhs: Vector2<Scalar>, _ rhs: Vector2<Scalar>) -> Vector2<Scalar> {
         return .init(self.storage.addingProduct(lhs.storage, rhs.storage))
@@ -510,11 +482,9 @@ func         abs<Scalar>(_ v: Vector2<Scalar>) -> Vector2<Scalar> where Scalar: 
     return .init(v.storage.replacing(with: -v.storage, where: v.storage .< 0))
 }
 
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 54)
 struct Vector3<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar: SIMDScalar {
     var storage: SIMD3<Scalar>
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 59)
     var x: Scalar {
         get {
             self.storage.x
@@ -523,7 +493,6 @@ struct Vector3<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
             self.storage.x = x
         }
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 59)
     var y: Scalar {
         get {
             self.storage.y
@@ -532,7 +501,6 @@ struct Vector3<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
             self.storage.y = y
         }
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 59)
     var z: Scalar {
         get {
             self.storage.z
@@ -541,7 +509,6 @@ struct Vector3<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
             self.storage.z = z
         }
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 71)
 
     var tuple: (Scalar, Scalar, Scalar) {
         (self.x, self.y, self.z)
@@ -551,17 +518,14 @@ struct Vector3<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
         "\(self.tuple)"
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 84)
     var xy: Vector2<Scalar> {
         .init(self.x, self.y)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 89)
 
     static func extend(_ body: Vector2<Scalar>, _ tail: Scalar)
     -> Vector3<Scalar> {
         .init(body.x, body.y, tail)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 97)
 
     subscript(index: Int) -> Scalar {
         self.storage[index]
@@ -592,13 +556,9 @@ struct Vector3<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
     init(from decoder: Decoder) throws {
         let serialized: KeyedDecodingContainer<CodingKeys> =
         try decoder.container(keyedBy: CodingKeys.self)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 135)
         let x: Scalar = try serialized.decode(Scalar.self, forKey: .x)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 135)
         let y: Scalar = try serialized.decode(Scalar.self, forKey: .y)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 135)
         let z: Scalar = try serialized.decode(Scalar.self, forKey: .z)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 137)
 
         self.init(x, y, z)
     }
@@ -606,13 +566,9 @@ struct Vector3<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
     func encode(to encoder: Encoder) throws {
         var serialized: KeyedEncodingContainer<CodingKeys> =
         encoder.container(keyedBy: CodingKeys.self)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 146)
         try serialized.encode(self.x, forKey: .x)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 146)
         try serialized.encode(self.y, forKey: .y)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 146)
         try serialized.encode(self.z, forKey: .z)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 148)
     }
 }
 
@@ -649,7 +605,6 @@ extension Vector3 where Scalar: FixedWidthInteger {
         return .init(.zero)
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &<< (lhs: Vector3<Scalar>, rhs: Vector3<Scalar>)
     -> Vector3<Scalar> {
         return .init(lhs.storage &<< rhs.storage)
@@ -669,7 +624,6 @@ extension Vector3 where Scalar: FixedWidthInteger {
     static func &<<= (lhs: inout Vector3<Scalar>, rhs: Scalar) {
         lhs.storage &<<= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &>> (lhs: Vector3<Scalar>, rhs: Vector3<Scalar>)
     -> Vector3<Scalar> {
         return .init(lhs.storage &>> rhs.storage)
@@ -689,7 +643,6 @@ extension Vector3 where Scalar: FixedWidthInteger {
     static func &>>= (lhs: inout Vector3<Scalar>, rhs: Scalar) {
         lhs.storage &>>= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &+ (lhs: Vector3<Scalar>, rhs: Vector3<Scalar>)
     -> Vector3<Scalar> {
         return .init(lhs.storage &+ rhs.storage)
@@ -709,7 +662,6 @@ extension Vector3 where Scalar: FixedWidthInteger {
     static func &+= (lhs: inout Vector3<Scalar>, rhs: Scalar) {
         lhs.storage &+= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &- (lhs: Vector3<Scalar>, rhs: Vector3<Scalar>)
     -> Vector3<Scalar> {
         return .init(lhs.storage &- rhs.storage)
@@ -729,7 +681,6 @@ extension Vector3 where Scalar: FixedWidthInteger {
     static func &-= (lhs: inout Vector3<Scalar>, rhs: Scalar) {
         lhs.storage &-= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &* (lhs: Vector3<Scalar>, rhs: Vector3<Scalar>)
     -> Vector3<Scalar> {
         return .init(lhs.storage &* rhs.storage)
@@ -749,7 +700,6 @@ extension Vector3 where Scalar: FixedWidthInteger {
     static func &*= (lhs: inout Vector3<Scalar>, rhs: Scalar) {
         lhs.storage &*= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func / (lhs: Vector3<Scalar>, rhs: Vector3<Scalar>)
     -> Vector3<Scalar> {
         return .init(lhs.storage / rhs.storage)
@@ -769,7 +719,6 @@ extension Vector3 where Scalar: FixedWidthInteger {
     static func /= (lhs: inout Vector3<Scalar>, rhs: Scalar) {
         lhs.storage /= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func % (lhs: Vector3<Scalar>, rhs: Vector3<Scalar>)
     -> Vector3<Scalar> {
         return .init(lhs.storage % rhs.storage)
@@ -789,7 +738,6 @@ extension Vector3 where Scalar: FixedWidthInteger {
     static func %= (lhs: inout Vector3<Scalar>, rhs: Scalar) {
         lhs.storage %= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 234)
 
     func roundedUp(exponent: Int) -> Vector3<Scalar> {
         let mask: Scalar                 = .max &<< exponent
@@ -812,19 +760,15 @@ extension Vector3 where Scalar: FixedWidthInteger {
 }
 
 extension Vector3 where Scalar: ExpressibleByIntegerLiteral {
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 262)
     static var i: Self {
         .init(1, 0, 0)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 262)
     static var j: Self {
         .init(0, 1, 0)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 262)
     static var k: Self {
         .init(0, 0, 1)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 268)
 }
 
 extension Vector3 where Scalar: FloatingPoint {
@@ -836,7 +780,6 @@ extension Vector3 where Scalar: FloatingPoint {
         return .init(-operand.storage)
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 285)
     static func + (lhs: Vector3<Scalar>, rhs: Vector3<Scalar>)
     -> Vector3<Scalar> {
         return .init(lhs.storage + rhs.storage)
@@ -856,7 +799,6 @@ extension Vector3 where Scalar: FloatingPoint {
     static func += (lhs: inout Vector3<Scalar>, rhs: Scalar) {
         lhs.storage += rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 285)
     static func - (lhs: Vector3<Scalar>, rhs: Vector3<Scalar>)
     -> Vector3<Scalar> {
         return .init(lhs.storage - rhs.storage)
@@ -876,7 +818,6 @@ extension Vector3 where Scalar: FloatingPoint {
     static func -= (lhs: inout Vector3<Scalar>, rhs: Scalar) {
         lhs.storage -= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 285)
     static func * (lhs: Vector3<Scalar>, rhs: Vector3<Scalar>)
     -> Vector3<Scalar> {
         return .init(lhs.storage * rhs.storage)
@@ -896,7 +837,6 @@ extension Vector3 where Scalar: FloatingPoint {
     static func *= (lhs: inout Vector3<Scalar>, rhs: Scalar) {
         lhs.storage *= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 285)
     static func / (lhs: Vector3<Scalar>, rhs: Vector3<Scalar>)
     -> Vector3<Scalar> {
         return .init(lhs.storage / rhs.storage)
@@ -916,7 +856,6 @@ extension Vector3 where Scalar: FloatingPoint {
     static func /= (lhs: inout Vector3<Scalar>, rhs: Scalar) {
         lhs.storage /= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 315)
 
     func addingProduct(_ lhs: Vector3<Scalar>, _ rhs: Vector3<Scalar>) -> Vector3<Scalar> {
         return .init(self.storage.addingProduct(lhs.storage, rhs.storage))
@@ -1005,11 +944,9 @@ func         abs<Scalar>(_ v: Vector3<Scalar>) -> Vector3<Scalar> where Scalar: 
     return .init(v.storage.replacing(with: -v.storage, where: v.storage .< 0))
 }
 
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 54)
 struct Vector4<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar: SIMDScalar {
     var storage: SIMD4<Scalar>
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 59)
     var x: Scalar {
         get {
             self.storage.x
@@ -1018,7 +955,6 @@ struct Vector4<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
             self.storage.x = x
         }
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 59)
     var y: Scalar {
         get {
             self.storage.y
@@ -1027,7 +963,6 @@ struct Vector4<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
             self.storage.y = y
         }
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 59)
     var z: Scalar {
         get {
             self.storage.z
@@ -1036,7 +971,6 @@ struct Vector4<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
             self.storage.z = z
         }
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 59)
     var w: Scalar {
         get {
             self.storage.w
@@ -1045,7 +979,6 @@ struct Vector4<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
             self.storage.w = w
         }
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 71)
 
     var tuple: (Scalar, Scalar, Scalar, Scalar) {
         (self.x, self.y, self.z, self.w)
@@ -1055,21 +988,17 @@ struct Vector4<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
         "\(self.tuple)"
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 84)
     var xy: Vector2<Scalar> {
         .init(self.x, self.y)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 84)
     var xyz: Vector3<Scalar> {
         .init(self.x, self.y, self.z)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 89)
 
     static func extend(_ body: Vector3<Scalar>, _ tail: Scalar)
     -> Vector4<Scalar> {
         .init(body.x, body.y, body.z, tail)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 97)
 
     subscript(index: Int) -> Scalar {
         self.storage[index]
@@ -1105,15 +1034,10 @@ struct Vector4<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
     init(from decoder: Decoder) throws {
         let serialized: KeyedDecodingContainer<CodingKeys> =
         try decoder.container(keyedBy: CodingKeys.self)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 135)
         let x: Scalar = try serialized.decode(Scalar.self, forKey: .x)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 135)
         let y: Scalar = try serialized.decode(Scalar.self, forKey: .y)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 135)
         let z: Scalar = try serialized.decode(Scalar.self, forKey: .z)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 135)
         let w: Scalar = try serialized.decode(Scalar.self, forKey: .w)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 137)
 
         self.init(x, y, z, w)
     }
@@ -1121,15 +1045,10 @@ struct Vector4<Scalar>: Hashable, Codable, CustomStringConvertible where Scalar:
     func encode(to encoder: Encoder) throws {
         var serialized: KeyedEncodingContainer<CodingKeys> =
         encoder.container(keyedBy: CodingKeys.self)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 146)
         try serialized.encode(self.x, forKey: .x)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 146)
         try serialized.encode(self.y, forKey: .y)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 146)
         try serialized.encode(self.z, forKey: .z)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 146)
         try serialized.encode(self.w, forKey: .w)
-        // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 148)
     }
 }
 
@@ -1176,7 +1095,6 @@ extension Vector4 where Scalar: FixedWidthInteger {
         return .init(.zero)
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &<< (lhs: Vector4<Scalar>, rhs: Vector4<Scalar>)
     -> Vector4<Scalar> {
         return .init(lhs.storage &<< rhs.storage)
@@ -1196,7 +1114,6 @@ extension Vector4 where Scalar: FixedWidthInteger {
     static func &<<= (lhs: inout Vector4<Scalar>, rhs: Scalar) {
         lhs.storage &<<= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &>> (lhs: Vector4<Scalar>, rhs: Vector4<Scalar>)
     -> Vector4<Scalar> {
         return .init(lhs.storage &>> rhs.storage)
@@ -1216,7 +1133,6 @@ extension Vector4 where Scalar: FixedWidthInteger {
     static func &>>= (lhs: inout Vector4<Scalar>, rhs: Scalar) {
         lhs.storage &>>= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &+ (lhs: Vector4<Scalar>, rhs: Vector4<Scalar>)
     -> Vector4<Scalar> {
         return .init(lhs.storage &+ rhs.storage)
@@ -1236,7 +1152,6 @@ extension Vector4 where Scalar: FixedWidthInteger {
     static func &+= (lhs: inout Vector4<Scalar>, rhs: Scalar) {
         lhs.storage &+= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &- (lhs: Vector4<Scalar>, rhs: Vector4<Scalar>)
     -> Vector4<Scalar> {
         return .init(lhs.storage &- rhs.storage)
@@ -1256,7 +1171,6 @@ extension Vector4 where Scalar: FixedWidthInteger {
     static func &-= (lhs: inout Vector4<Scalar>, rhs: Scalar) {
         lhs.storage &-= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func &* (lhs: Vector4<Scalar>, rhs: Vector4<Scalar>)
     -> Vector4<Scalar> {
         return .init(lhs.storage &* rhs.storage)
@@ -1276,7 +1190,6 @@ extension Vector4 where Scalar: FixedWidthInteger {
     static func &*= (lhs: inout Vector4<Scalar>, rhs: Scalar) {
         lhs.storage &*= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func / (lhs: Vector4<Scalar>, rhs: Vector4<Scalar>)
     -> Vector4<Scalar> {
         return .init(lhs.storage / rhs.storage)
@@ -1296,7 +1209,6 @@ extension Vector4 where Scalar: FixedWidthInteger {
     static func /= (lhs: inout Vector4<Scalar>, rhs: Scalar) {
         lhs.storage /= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 204)
     static func % (lhs: Vector4<Scalar>, rhs: Vector4<Scalar>)
     -> Vector4<Scalar> {
         return .init(lhs.storage % rhs.storage)
@@ -1316,7 +1228,6 @@ extension Vector4 where Scalar: FixedWidthInteger {
     static func %= (lhs: inout Vector4<Scalar>, rhs: Scalar) {
         lhs.storage %= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 234)
 
     func roundedUp(exponent: Int) -> Vector4<Scalar> {
         let mask: Scalar                 = .max &<< exponent
@@ -1339,23 +1250,18 @@ extension Vector4 where Scalar: FixedWidthInteger {
 }
 
 extension Vector4 where Scalar: ExpressibleByIntegerLiteral {
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 262)
     static var i: Self {
         .init(1, 0, 0, 0)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 262)
     static var j: Self {
         .init(0, 1, 0, 0)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 262)
     static var k: Self {
         .init(0, 0, 1, 0)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 262)
     static var h: Self {
         .init(0, 0, 0, 1)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 268)
 }
 
 extension Vector4 where Scalar: FloatingPoint {
@@ -1367,7 +1273,6 @@ extension Vector4 where Scalar: FloatingPoint {
         return .init(-operand.storage)
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 285)
     static func + (lhs: Vector4<Scalar>, rhs: Vector4<Scalar>)
     -> Vector4<Scalar> {
         return .init(lhs.storage + rhs.storage)
@@ -1387,7 +1292,6 @@ extension Vector4 where Scalar: FloatingPoint {
     static func += (lhs: inout Vector4<Scalar>, rhs: Scalar) {
         lhs.storage += rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 285)
     static func - (lhs: Vector4<Scalar>, rhs: Vector4<Scalar>)
     -> Vector4<Scalar> {
         return .init(lhs.storage - rhs.storage)
@@ -1407,7 +1311,6 @@ extension Vector4 where Scalar: FloatingPoint {
     static func -= (lhs: inout Vector4<Scalar>, rhs: Scalar) {
         lhs.storage -= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 285)
     static func * (lhs: Vector4<Scalar>, rhs: Vector4<Scalar>)
     -> Vector4<Scalar> {
         return .init(lhs.storage * rhs.storage)
@@ -1427,7 +1330,6 @@ extension Vector4 where Scalar: FloatingPoint {
     static func *= (lhs: inout Vector4<Scalar>, rhs: Scalar) {
         lhs.storage *= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 285)
     static func / (lhs: Vector4<Scalar>, rhs: Vector4<Scalar>)
     -> Vector4<Scalar> {
         return .init(lhs.storage / rhs.storage)
@@ -1447,7 +1349,6 @@ extension Vector4 where Scalar: FloatingPoint {
     static func /= (lhs: inout Vector4<Scalar>, rhs: Scalar) {
         lhs.storage /= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 315)
 
     func addingProduct(_ lhs: Vector4<Scalar>, _ rhs: Vector4<Scalar>) -> Vector4<Scalar> {
         return .init(self.storage.addingProduct(lhs.storage, rhs.storage))
@@ -1536,7 +1437,6 @@ func         abs<Scalar>(_ v: Vector4<Scalar>) -> Vector4<Scalar> where Scalar: 
     return .init(v.storage.replacing(with: -v.storage, where: v.storage .< 0))
 }
 
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 432)
 
 extension Vector2 where Scalar: FixedWidthInteger {
     static func &>< (lhs: Vector2<Scalar>, rhs: Vector2<Scalar>) -> Scalar {
@@ -1625,7 +1525,6 @@ struct Spherical2<Scalar> where Scalar: SIMDScalar & FloatingPoint & ElementaryF
         return .init(-operand.storage)
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 552)
     static func + (lhs: Spherical2<Scalar>, rhs: Spherical2<Scalar>)
     -> Spherical2<Scalar> {
         return .init(lhs.storage + rhs.storage)
@@ -1645,7 +1544,6 @@ struct Spherical2<Scalar> where Scalar: SIMDScalar & FloatingPoint & ElementaryF
     static func += (lhs: inout Spherical2<Scalar>, rhs: Scalar) {
         lhs.storage += rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 552)
     static func - (lhs: Spherical2<Scalar>, rhs: Spherical2<Scalar>)
     -> Spherical2<Scalar> {
         return .init(lhs.storage - rhs.storage)
@@ -1665,7 +1563,6 @@ struct Spherical2<Scalar> where Scalar: SIMDScalar & FloatingPoint & ElementaryF
     static func -= (lhs: inout Spherical2<Scalar>, rhs: Scalar) {
         lhs.storage -= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 552)
     static func * (lhs: Spherical2<Scalar>, rhs: Spherical2<Scalar>)
     -> Spherical2<Scalar> {
         return .init(lhs.storage * rhs.storage)
@@ -1685,7 +1582,6 @@ struct Spherical2<Scalar> where Scalar: SIMDScalar & FloatingPoint & ElementaryF
     static func *= (lhs: inout Spherical2<Scalar>, rhs: Scalar) {
         lhs.storage *= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 552)
     static func / (lhs: Spherical2<Scalar>, rhs: Spherical2<Scalar>)
     -> Spherical2<Scalar> {
         return .init(lhs.storage / rhs.storage)
@@ -1705,7 +1601,6 @@ struct Spherical2<Scalar> where Scalar: SIMDScalar & FloatingPoint & ElementaryF
     static func /= (lhs: inout Spherical2<Scalar>, rhs: Scalar) {
         lhs.storage /= rhs
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 582)
 
     func addingProduct(
         _ lhs: Spherical2<Scalar>,
@@ -1741,45 +1636,34 @@ struct Spherical2<Scalar> where Scalar: SIMDScalar & FloatingPoint & ElementaryF
     }
 }
 
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 628)
 struct Matrix2<T>: Equatable where T: SIMDScalar {
     private var columns: (Vector2<T>, Vector2<T>)
 
     var transposed: Matrix2<T> {
         return .init(
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 637)
             .init(self.columns.0.x, self.columns.1.x),
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 637)
             .init(self.columns.0.y, self.columns.1.y)
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 639)
         )
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 648)
 
     @inline(__always) subscript(column: Int) -> Vector2<T> {
         get {
             switch column {
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 657)
             case 0:
                 return self.columns.0
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 657)
             case 1:
                 return self.columns.1
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 660)
             default:
                 fatalError("Matrix column index out of range")
             }
         }
         set(value) {
             switch column {
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 669)
             case 0:
                 self.columns.0 = value
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 669)
             case 1:
                 self.columns.1 = value
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 672)
             default:
                 fatalError("Matrix column index out of range")
             }
@@ -1798,11 +1682,8 @@ struct Matrix2<T>: Equatable where T: SIMDScalar {
 extension Matrix2 where T: Numeric {
     static var identity: Matrix2<T> {
         return .init(
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 697)
             .init(1, 0),
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 697)
             .init(0, 1)
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 699)
         )
     }
 }
@@ -1824,57 +1705,42 @@ extension Matrix2 where T: FloatingPoint {
         return .init(A >< B.columns.0, A >< B.columns.1)
     }
 }
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 628)
 struct Matrix3<T>: Equatable where T: SIMDScalar {
     private var columns: (Vector3<T>, Vector3<T>, Vector3<T>)
 
     var transposed: Matrix3<T> {
         return .init(
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 637)
             .init(self.columns.0.x, self.columns.1.x, self.columns.2.x),
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 637)
             .init(self.columns.0.y, self.columns.1.y, self.columns.2.y),
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 637)
             .init(self.columns.0.z, self.columns.1.z, self.columns.2.z)
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 639)
         )
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 643)
     var matrix2: Matrix2<T> {
         return .init(self.columns.0.xy, self.columns.1.xy)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 648)
 
     @inline(__always) subscript(column: Int) -> Vector3<T> {
         get {
             switch column {
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 657)
             case 0:
                 return self.columns.0
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 657)
             case 1:
                 return self.columns.1
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 657)
             case 2:
                 return self.columns.2
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 660)
             default:
                 fatalError("Matrix column index out of range")
             }
         }
         set(value) {
             switch column {
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 669)
             case 0:
                 self.columns.0 = value
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 669)
             case 1:
                 self.columns.1 = value
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 669)
             case 2:
                 self.columns.2 = value
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 672)
             default:
                 fatalError("Matrix column index out of range")
             }
@@ -1893,13 +1759,9 @@ struct Matrix3<T>: Equatable where T: SIMDScalar {
 extension Matrix3 where T: Numeric {
     static var identity: Matrix3<T> {
         return .init(
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 697)
             .init(1, 0, 0),
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 697)
             .init(0, 1, 0),
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 697)
             .init(0, 0, 1)
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 699)
         )
     }
 }
@@ -1924,65 +1786,47 @@ extension Matrix3 where T: FloatingPoint {
         return .init(A >< B.columns.0, A >< B.columns.1, A >< B.columns.2)
     }
 }
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 628)
 struct Matrix4<T>: Equatable where T: SIMDScalar {
     private var columns: (Vector4<T>, Vector4<T>, Vector4<T>, Vector4<T>)
 
     var transposed: Matrix4<T> {
         return .init(
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 637)
             .init(self.columns.0.x, self.columns.1.x, self.columns.2.x, self.columns.3.x),
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 637)
             .init(self.columns.0.y, self.columns.1.y, self.columns.2.y, self.columns.3.y),
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 637)
             .init(self.columns.0.z, self.columns.1.z, self.columns.2.z, self.columns.3.z),
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 637)
             .init(self.columns.0.w, self.columns.1.w, self.columns.2.w, self.columns.3.w)
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 639)
         )
     }
 
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 643)
     var matrix3: Matrix3<T> {
         return .init(self.columns.0.xyz, self.columns.1.xyz, self.columns.2.xyz)
     }
-    // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 648)
 
     @inline(__always) subscript(column: Int) -> Vector4<T> {
         get {
             switch column {
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 657)
             case 0:
                 return self.columns.0
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 657)
             case 1:
                 return self.columns.1
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 657)
             case 2:
                 return self.columns.2
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 657)
             case 3:
                 return self.columns.3
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 660)
             default:
                 fatalError("Matrix column index out of range")
             }
         }
         set(value) {
             switch column {
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 669)
             case 0:
                 self.columns.0 = value
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 669)
             case 1:
                 self.columns.1 = value
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 669)
             case 2:
                 self.columns.2 = value
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 669)
             case 3:
                 self.columns.3 = value
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 672)
             default:
                 fatalError("Matrix column index out of range")
             }
@@ -2001,15 +1845,10 @@ struct Matrix4<T>: Equatable where T: SIMDScalar {
 extension Matrix4 where T: Numeric {
     static var identity: Matrix4<T> {
         return .init(
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 697)
             .init(1, 0, 0, 0),
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 697)
             .init(0, 1, 0, 0),
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 697)
             .init(0, 0, 1, 0),
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 697)
             .init(0, 0, 0, 1)
-            // ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 699)
         )
     }
 }
@@ -2037,7 +1876,6 @@ extension Matrix4 where T: FloatingPoint {
         return .init(A >< B.columns.0, A >< B.columns.1, A >< B.columns.2, A >< B.columns.3)
     }
 }
-// ###sourceLocation(file: "/swift/diannamy-engine/sources/atmospheric-scattering/vector.swift.gyb", line: 731)
 
 extension Matrix2 where T: FloatingPoint {
     func inversed() -> Self {
