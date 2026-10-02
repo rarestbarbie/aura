@@ -1,3 +1,8 @@
-.github/workflows/SemanticTitle.yml
-.github/workflows/SemanticRelease.yml
+AGENTS.md
 README.md
+LICENSE
+NOTICE
+.mailmap
+.gitignore
+.github/tools/**
+.github/FUNDING.yml

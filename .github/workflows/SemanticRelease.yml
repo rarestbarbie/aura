@@ -1,3 +1,5 @@
+#  ❣❣❣  DO NOT EDIT  ❣  THIS FILE IS AUTOMATICALLY SYNCED  ❣  DO NOT EDIT  ❣❣❣
+
 name: Semantic release
 
 permissions:
@@ -12,6 +14,7 @@ on:
 jobs:
     release:
         name: Release
+        # ensures this only runs if the PR was actually merged, not just closed unmerged
         if: github.event.pull_request.merged == true
         runs-on: ubuntu-latest
         outputs:
@@ -21,11 +24,14 @@ jobs:
             -   name: ⚡ Checkout repository ⚡
                 uses: actions/checkout@v6
                 with:
+                    # fetch all history so the workflow can find previous tags
                     fetch-depth: 0
 
             -   name: ⚡ Parse bump type ⚡
                 id: parse
                 env:
+                    # note: do not interpolate PR title using standard bash double quotes, it
+                    # can contain backticks
                     TITLE: ${{ github.event.pull_request.title }}
                 run: |
                     if [[ "$TITLE" =~ ^\[major\] ]]; then
@@ -35,6 +41,7 @@ jobs:
                     elif [[ "$TITLE" =~ ^\[patch\] ]]; then
                         echo "type=patch" >> "$GITHUB_OUTPUT"
                     else
+                        # Handles [none] or any PR title that lacks a recognized specifier
                         echo "type=none" >> "$GITHUB_OUTPUT"
                     fi
 
@@ -65,7 +72,6 @@ jobs:
 
                     NEXT_VERSION="${MAJOR}.${MINOR}.${PATCH}"
                     echo "version=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
-
     deploy:
         name: Deploy
         needs: release
@@ -74,29 +80,55 @@ jobs:
         if: needs.release.outputs.type != 'none'
         with:
             version: ${{ needs.release.outputs.version }}
-
     publish:
         name: Publish Release
         needs:
             -   release
             -   deploy
+
         if: needs.release.outputs.type != 'none'
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04-arm
         env:
+            # toggle to 'false' to only push the tag and skip creating the GitHub Release
             CREATE_RELEASE: 'true'
         steps:
             -   name: ⚡ Checkout repository ⚡
                 uses: actions/checkout@v6
+
+            -   name: ⚡ Install rarestcheck tool ⚡
+                uses: rarestype/r2-install-action@v1
+                with:
+                    tracker: rarestype/rarestcheck
+                    project: rarestcheck
+                    archive: rarestcheck.tar.gz
 
             -   name: ⚡ Configure git ⚡
                 run: |
                     git config user.name "rarest automation"
                     git config user.email "automation@noreply.rarestype.com"
 
+            -   name: ⚡ Run README hook ⚡
+                run: |
+                    if [ -f README.md ]; then
+                        rarestcheck sync-readme README.md \
+                            --repo ${{ github.repository }} \
+                            --version ${{ needs.release.outputs.version }}
+
+                        git add README.md
+                    fi
+
             -   name: ⚡ Create tag ⚡
                 run: |
+                    # if the pre-release script modified anything but the README, abort release
+                    git diff --exit-code
+
+                    git commit \
+                        --allow-empty \
+                        -m "[release]: ${{ needs.release.outputs.version }}"
+
                     git tag "${{ needs.release.outputs.version }}"
                     git push origin "${{ needs.release.outputs.version }}"
+                    git push
 
             -   name: ⚡ Create release ⚡
                 if: env.CREATE_RELEASE == 'true'
