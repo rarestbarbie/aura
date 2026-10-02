@@ -46,21 +46,10 @@ public enum AtmosphereBaker {
             }
         }
 
-        // 2. scattering.bin
+        // 2. scattering.bin.gz
         let scatBuffer: [SIMD4<Float>] = zip(scattering.buffer, mie.buffer).map {
             SIMD4<Float>(Float($0.x), Float($0.y), Float($0.z), Float($1.x))
         }
-        let scatPath: FilePath = directory.appending("scattering.bin")
-        _ = try scatPath.open(
-            .writeOnly,
-            permissions: (.rw, .rw, .r),
-            options: [.create, .truncate]
-        ) { descriptor in
-            try scatBuffer.withUnsafeBytes { raw in
-                try descriptor.writeAll(raw)
-            }
-        }
-
         let compressedScat: [UInt8] = TableCompression.compress(
             simd4: scatBuffer,
             width: atmosphere.resolution.scattering.x,
