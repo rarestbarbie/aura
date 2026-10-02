@@ -1,4 +1,4 @@
-import CZlib
+import LZ77
 
 public enum TableCompression {
     /// Applies PNG Up filtering and 16-plane byte shuffling to a 2D or 3D buffer.
@@ -133,13 +133,13 @@ public enum TableCompression {
     }
 
     /// Compresses data using Gzip (deflate).
-    public static func deflate(_ data: [UInt8], level: Int32 = 6) -> [UInt8] {
-        Gzip.deflate(data, level: level)
+    public static func deflate(_ data: [UInt8], level: Int = 7) -> [UInt8] {
+        Gzip.archive(bytes: data[...], level: level)
     }
 
     /// Decompresses data using Gzip (inflate).
-    public static func inflate(_ data: [UInt8], expectedCapacity: Int = 0) throws -> [UInt8] {
-        try Gzip.inflate(data, expectedCapacity: expectedCapacity)
+    public static func inflate(_ data: [UInt8]) throws -> [UInt8] {
+        try Gzip.extract(from: data[...])
     }
 
     /// Compresses a 2D or 3D volume buffer using PNG Up filtering,
@@ -152,7 +152,7 @@ public enum TableCompression {
         bpp: Int = 16
     ) -> [UInt8] {
         let shuffled: [UInt8] = Self.filterAndShuffle(raw: raw, width: width, height: height, depth: depth, bpp: bpp)
-        return Self.deflate(shuffled, level: 6)
+        return Self.deflate(shuffled, level: 7)
     }
 
     /// Compresses a buffer of `SIMD4<Float>` texels.
@@ -178,7 +178,7 @@ public enum TableCompression {
         let numPixels: Int = width * height * depth
         let totalBytes: Int = numPixels * bpp
 
-        let shuffled: [UInt8] = try Self.inflate(archive, expectedCapacity: totalBytes)
+        let shuffled: [UInt8] = try Self.inflate(archive)
         guard shuffled.count == totalBytes else {
             throw Error.decompressedSizeMismatch(
                 expected: totalBytes,

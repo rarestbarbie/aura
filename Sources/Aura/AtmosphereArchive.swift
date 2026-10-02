@@ -1,4 +1,3 @@
-import CZlib
 import Foundation
 import SystemIO
 import SystemPackage
@@ -46,7 +45,7 @@ extension AtmosphereArchive {
         uncompressed.append(contentsOf: self.payload)
 
         // 6. Gzip compression
-        return TableCompression.deflate(uncompressed, level: 6)
+        return TableCompression.deflate(uncompressed, level: 7)
     }
 
     /// Decompresses a Gzip package and deserializes the container.
