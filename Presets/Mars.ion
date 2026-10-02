@@ -1,0 +1,25 @@
+{
+    // Atmosphere configuration for Mars
+    name: "Mars",
+
+    // Planetary geometry (meters and radians)
+    radius_bottom: 3389500.0,
+    radius_top: 3450000.0,
+    sun_angular_radius: 0.003067,
+    max_sun_zenith_angle: 100.0,
+
+    // Rayleigh molecular scattering (thin CO2)
+    rayleigh_scale_height: 11100.0,
+    rayleigh_scattering: [1.9e-07, 4.5e-07, 1.1e-06],
+
+    // Mie aerosol scattering (suspended red iron oxide dust)
+    mie_scale_height: 2000.0,
+    mie_scattering: [4e-06, 3.2e-06, 2e-06],
+    mie_extinction: [4.5e-06, 3.8e-06, 2.8e-06],
+    mie_albedo: 0.85,
+    mie_g: 0.70,
+
+    // Illumination and surface reflectance (1.524 AU)
+    solar_irradiance: [0.642, 0.796, 0.758],
+    ground_albedo: [0.25, 0.15, 0.10],
+}

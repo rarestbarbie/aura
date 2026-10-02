@@ -1,0 +1,25 @@
+{
+    // Atmosphere configuration for Venus
+    name: "Venus",
+
+    // Planetary geometry (meters and radians)
+    radius_bottom: 6052000.0,
+    radius_top: 6150000.0,
+    sun_angular_radius: 0.006466,
+    max_sun_zenith_angle: 105.0,
+
+    // Rayleigh molecular scattering (dense CO2)
+    rayleigh_scale_height: 15900.0,
+    rayleigh_scattering: [1.95e-05, 4.6e-05, 0.000112],
+
+    // Mie aerosol scattering (thick sulfuric acid clouds)
+    mie_scale_height: 4000.0,
+    mie_scattering: [3e-05, 3e-05, 2.5e-05],
+    mie_extinction: [3.03e-05, 3.03e-05, 2.55e-05],
+    mie_albedo: 0.99,
+    mie_g: 0.75,
+
+    // Illumination and surface reflectance (0.723 AU)
+    solar_irradiance: [2.855, 3.541, 3.371],
+    ground_albedo: [0.1, 0.1, 0.1],
+}

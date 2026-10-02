@@ -1,0 +1,25 @@
+{
+    // Atmosphere configuration for Titan
+    name: "Titan",
+
+    // Planetary geometry (meters and radians)
+    radius_bottom: 2575000.0,
+    radius_top: 2900000.0,
+    sun_angular_radius: 0.000489,
+    max_sun_zenith_angle: 108.0,
+
+    // Rayleigh molecular scattering (dense N2/CH4)
+    rayleigh_scale_height: 40000.0,
+    rayleigh_scattering: [2.5e-05, 5.8e-05, 0.00014],
+
+    // Mie aerosol scattering (dense hydrocarbon / tholin haze)
+    mie_scale_height: 20000.0,
+    mie_scattering: [2e-05, 1.5e-05, 8e-06],
+    mie_extinction: [2.5e-05, 2.2e-05, 1.6e-05],
+    mie_albedo: 0.80,
+    mie_g: 0.85,
+
+    // Illumination and surface reflectance (9.58 AU)
+    solar_irradiance: [0.0163, 0.0202, 0.0192],
+    ground_albedo: [0.15, 0.15, 0.15],
+}
