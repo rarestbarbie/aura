@@ -1,20 +1,20 @@
-package struct AtmosphereParameters: Sendable, Codable {
-    package var radius_bottom: Float
-    package var radius_top: Float
-    package var radius_sun: Float
-    package var mu_s_min: Float
-    package var rayleigh_scattering: [Float]
-    package var mie_scattering: [Float]
-    package var mie_g: Float
-    package var resolution_transmittance: [Int]
-    package var resolution_scattering4_R: Int
-    package var resolution_scattering4_M: Int
-    package var resolution_scattering4_MS: Int
-    package var resolution_scattering4_N: Int
-    package var resolution_irradiance: [Int]
-    package var irradiance: [Float]
+public struct AtmosphereParameters: Sendable, Codable, Equatable {
+    public var radius_bottom: Float
+    public var radius_top: Float
+    public var radius_sun: Float
+    public var mu_s_min: Float
+    public var rayleigh_scattering: [Float]
+    public var mie_scattering: [Float]
+    public var mie_g: Float
+    public var resolution_transmittance: [Int]
+    public var resolution_scattering4_R: Int
+    public var resolution_scattering4_M: Int
+    public var resolution_scattering4_MS: Int
+    public var resolution_scattering4_N: Int
+    public var resolution_irradiance: [Int]
+    public var irradiance: [Float]
 
-    package init(
+    public init(
         radius_bottom: Float,
         radius_top: Float,
         radius_sun: Float,

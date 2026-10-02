@@ -10,110 +10,23 @@ public enum AtmosphereError: Error, Sendable {
 
 public enum AtmosphereBaker {
     public static func bake(
+        configs: [AtmosphereConfig],
+        detail: Int = 3,
+        to file: FilePath
+    ) throws {
+        let archive: AtmosphereArchive = try .bake(configs: configs, detail: detail)
+        try archive.write(to: file)
+    }
+
+    public static func bake(
         config: AtmosphereConfig,
         detail: Int = 3,
         to directory: FilePath
     ) throws {
-        guard 1 ... 5 ~= detail else {
-            throw AtmosphereError.invalidDetail(detail)
-        }
-
-        let atmosphere: Atmosphere<Double> = .from(
-            config: config,
-            resolutions: (
-                transmittance: .init(32, 8)       &<< detail,
-                scattering:    .init(4, 16, 4, 1) &<< detail,
-                irradiance:    .init(8, 2)        &<< detail
-            )
-        )
-
-        let (transmittance, mie, scattering, irradiance) = atmosphere.tables()
-
         try FilePath.Directory(path: directory).create()
-
-        // 1. transmittance.bin
-        let transBuffer: [SIMD4<Float>] = transmittance.buffer.map {
-            SIMD4<Float>(Float($0.x), Float($0.y), Float($0.z), 1.0)
-        }
-        let transPath: FilePath = directory.appending("transmittance.bin")
-        _ = try transPath.open(
-            .writeOnly,
-            permissions: (.rw, .rw, .r),
-            options: [.create, .truncate]
-        ) { descriptor in
-            try transBuffer.withUnsafeBytes { raw in
-                try descriptor.writeAll(raw)
-            }
-        }
-
-        // 2. scattering.bin.gz
-        let scatBuffer: [SIMD4<Float>] = zip(scattering.buffer, mie.buffer).map {
-            SIMD4<Float>(Float($0.x), Float($0.y), Float($0.z), Float($1.x))
-        }
-        let compressedScat: [UInt8] = TableCompression.compress(
-            simd4: scatBuffer,
-            width: atmosphere.resolution.scattering.x,
-            height: atmosphere.resolution.scattering.y,
-            depth: atmosphere.resolution.scattering.z
-        )
-        let scatGzPath: FilePath = directory.appending("scattering.bin.gz")
-        _ = try scatGzPath.open(
-            .writeOnly,
-            permissions: (.rw, .rw, .r),
-            options: [.create, .truncate]
-        ) { descriptor in
-            try compressedScat.withUnsafeBytes { raw in
-                try descriptor.writeAll(raw)
-            }
-        }
-
-        // 3. irradiance.bin
-        let irradBuffer: [SIMD4<Float>] = irradiance.buffer.map {
-            SIMD4<Float>(Float($0.x), Float($0.y), Float($0.z), 1.0)
-        }
-        let irradPath: FilePath = directory.appending("irradiance.bin")
-        _ = try irradPath.open(
-            .writeOnly,
-            permissions: (.rw, .rw, .r),
-            options: [.create, .truncate]
-        ) { descriptor in
-            try irradBuffer.withUnsafeBytes { raw in
-                try descriptor.writeAll(raw)
-            }
-        }
-
-        // 4. parameters.json
-        let p: [Float] = atmosphere.serialized.map(Float.init)
-        let params: AtmosphereParameters = .init(
-            radius_bottom: p[0],
-            radius_top: p[1],
-            radius_sun: p[2],
-            mu_s_min: p[3],
-            rayleigh_scattering: [p[4], p[5], p[6]],
-            mie_scattering: [p[7], p[8], p[9]],
-            mie_g: p[10],
-            resolution_transmittance: [Int(p[11]), Int(p[12])],
-            resolution_scattering4_R: Int(p[13]),
-            resolution_scattering4_M: Int(p[14]),
-            resolution_scattering4_MS: Int(p[15]),
-            resolution_scattering4_N: Int(p[16]),
-            resolution_irradiance: [Int(p[17]), Int(p[18])],
-            irradiance: [p[19], p[20], p[21]]
-        )
-
-        let encoder: JSONEncoder = .init()
-        encoder.outputFormatting = [.prettyPrinted]
-        let jsonData: Data = try encoder.encode(params)
-        let jsonPath: FilePath = directory.appending("parameters.json")
-        _ = try jsonPath.open(
-            .writeOnly,
-            permissions: (.rw, .rw, .r),
-            options: [.create, .truncate]
-        ) { descriptor in
-            try jsonData.withUnsafeBytes { raw in
-                try descriptor.writeAll(raw)
-            }
-        }
+        let archive: AtmosphereArchive = try .bake(configs: [config], detail: detail)
+        let filePath: FilePath = directory.appending("atmosphere.bin.gz")
+        try archive.write(to: filePath)
     }
 
     public static func bakeEarth(

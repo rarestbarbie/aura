@@ -133,4 +133,60 @@ import Ion
         #expect(decompressed.count == data.count)
         #expect(decompressed == data)
     }
+
+    @Test static func atmosphereArchiveSinglePlanetRoundtrip() throws {
+        let archive = try AtmosphereArchive.bake(configs: [.earth], detail: 1)
+        #expect(archive.manifest.planets["Earth"] != nil)
+        #expect(archive.manifest.planets["earth"] == nil) // Distinct casing!
+
+        let compressedBytes = try archive.serialize()
+        #expect(compressedBytes.count > 0)
+        #expect(compressedBytes.count < archive.payload.count)
+
+        let deserialized = try AtmosphereArchive.deserialize(from: compressedBytes)
+        #expect(deserialized.manifest.version == AtmosphereArchive.currentVersion)
+        #expect(deserialized.manifest.planets.count == 1)
+
+        guard let earthEntry = deserialized.manifest.planets["Earth"] else {
+            Issue.record("Missing Earth planet entry in deserialized archive")
+            return
+        }
+
+        #expect(earthEntry.parameters.radius_bottom == 6360000.0)
+        #expect(earthEntry.tables["transmittance"] != nil)
+        #expect(earthEntry.tables["scattering"] != nil)
+        #expect(earthEntry.tables["irradiance"] != nil)
+
+        let trans = try deserialized.extractTable(for: "Earth", table: "transmittance")
+        let transDesc = earthEntry.tables["transmittance"]!
+        #expect(trans.count == transDesc.width * transDesc.height)
+
+        let scat = try deserialized.extractTable(for: "Earth", table: "scattering")
+        let scatDesc = earthEntry.tables["scattering"]!
+        #expect(scat.count == scatDesc.width * scatDesc.height * (scatDesc.depth ?? 1))
+
+        let irrad = try deserialized.extractTable(for: "Earth", table: "irradiance")
+        let irradDesc = earthEntry.tables["irradiance"]!
+        #expect(irrad.count == irradDesc.width * irradDesc.height)
+    }
+
+    @Test static func atmosphereArchiveMultiPlanetRoundtrip() throws {
+        let archive = try AtmosphereArchive.bake(configs: [.earth, .mars], detail: 1)
+        #expect(archive.manifest.planets.count == 2)
+        #expect(archive.manifest.planets["Earth"] != nil)
+        #expect(archive.manifest.planets["Mars"] != nil)
+
+        let compressed = try archive.serialize()
+        let deserialized = try AtmosphereArchive.deserialize(from: compressed)
+
+        #expect(deserialized.manifest.planets["Earth"] != nil)
+        #expect(deserialized.manifest.planets["Mars"] != nil)
+        #expect(deserialized.manifest.planets["Earth"]?.parameters.radius_bottom == 6360000.0)
+        #expect(deserialized.manifest.planets["Mars"]?.parameters.radius_bottom == 3389500.0)
+
+        let earthTrans = try deserialized.extractTable(for: "Earth", table: "transmittance")
+        let marsTrans = try deserialized.extractTable(for: "Mars", table: "transmittance")
+        #expect(earthTrans.count > 0)
+        #expect(marsTrans.count > 0)
+    }
 }

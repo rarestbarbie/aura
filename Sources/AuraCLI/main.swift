@@ -13,9 +13,15 @@ struct AuraCLI: ParsableCommand {
 
     @Option(
         name: .shortAndLong,
-        help: "Atmospheric preset to bake: 'earth', 'venus', 'mars', or 'titan'."
+        help: "Atmospheric preset to bake: 'Earth', 'Venus', 'Mars', or 'Titan'."
     )
     var preset: String?
+
+    @Flag(
+        name: .long,
+        help: "Bake all standard planetary presets (Earth, Venus, Mars, Titan) into a single archive."
+    )
+    var all: Bool = false
 
     @Option(
         name: .shortAndLong,
@@ -31,38 +37,60 @@ struct AuraCLI: ParsableCommand {
 
     @Option(
         name: .shortAndLong,
-        help: "Directory to write output tables (transmittance.bin, scattering.bin, irradiance.bin, parameters.json) to."
+        help: "Output file path (e.g. 'atmosphere.bin.gz') or directory to write archive to."
     )
     var output: String?
 
     func run() throws {
+        if self.all {
+            let configs: [AtmosphereConfig] = [.earth, .venus, .mars, .titan]
+            let outString: String = self.output ?? "Public/Atmospheres/atmospheres.bin.gz"
+            let outPath: FilePath = .init(outString)
+            let parent: FilePath = outPath.removingLastComponent()
+            if !parent.isEmpty {
+                try FilePath.Directory(path: parent).create()
+            }
+            print("Baking atmosphere archive for all planets (Earth, Venus, Mars, Titan) (detail: \(self.detail)) to '\(outString)'...")
+            try AtmosphereBaker.bake(configs: configs, detail: self.detail, to: outPath)
+            print("Successfully baked atmospheres archive to '\(outString)'!")
+            return
+        }
+
         let atmosphereConfig: AtmosphereConfig
         if let configPathString = self.config {
             let configPath: FilePath = .init(configPathString)
             print("Loading atmospheric configuration from '\(configPathString)'...")
             atmosphereConfig = try AtmosphereConfig.load(from: configPath)
         } else {
-            let presetName: String = self.preset?.lowercased() ?? "earth"
+            let presetName: String = self.preset ?? "Earth"
             switch presetName {
-            case "earth":
+            case "Earth":
                 atmosphereConfig = .earth
-            case "venus":
+            case "Venus":
                 atmosphereConfig = .venus
-            case "mars":
+            case "Mars":
                 atmosphereConfig = .mars
-            case "titan":
+            case "Titan":
                 atmosphereConfig = .titan
             default:
-                print("Unknown preset '\(presetName)'. Available presets: earth, venus, mars, titan")
+                print("Unknown preset '\(presetName)'. Available presets: Earth, Venus, Mars, Titan")
                 throw ExitCode.failure
             }
         }
 
-        let outDir: String = self.output ?? "Public/\(atmosphereConfig.name)/Atmosphere"
-        let outPath: FilePath = .init(outDir)
+        let outString: String = self.output ?? "Public/\(atmosphereConfig.name)/Atmosphere"
+        let outPath: FilePath = .init(outString)
 
-        print("Baking atmosphere for \(atmosphereConfig.name) (detail: \(self.detail)) to '\(outDir)'...")
-        try AtmosphereBaker.bake(config: atmosphereConfig, detail: self.detail, to: outPath)
-        print("Successfully baked atmospheric scattering tables to '\(outDir)'!")
+        print("Baking atmosphere for \(atmosphereConfig.name) (detail: \(self.detail)) to '\(outString)'...")
+        if outString.hasSuffix(".bin.gz") || outString.hasSuffix(".gz") {
+            let parent: FilePath = outPath.removingLastComponent()
+            if !parent.isEmpty {
+                try FilePath.Directory(path: parent).create()
+            }
+            try AtmosphereBaker.bake(configs: [atmosphereConfig], detail: self.detail, to: outPath)
+        } else {
+            try AtmosphereBaker.bake(config: atmosphereConfig, detail: self.detail, to: outPath)
+        }
+        print("Successfully baked atmosphere archive for \(atmosphereConfig.name) to '\(outString)'!")
     }
 }

@@ -7,17 +7,8 @@ public enum TableCompressionError: Error, Sendable {
 }
 
 public enum TableCompression {
-    /// Compresses a 2D or 3D volume buffer using PNG Up filtering,
-    /// byte-plane shuffling, and Gzip compression.
-    ///
-    /// - Parameters:
-    ///   - raw: The raw byte buffer to compress.
-    ///   - width: The width of each scanline in pixels.
-    ///   - height: The height (number of scanlines) per slice.
-    ///   - depth: The number of 2D slices (default: 1).
-    ///   - bpp: Bytes per pixel (default: 16 for `SIMD4<Float>`).
-    /// - Returns: A Gzip-compressed byte array containing the filtered and shuffled planes.
-    public static func compress(
+    /// Applies PNG Up filtering and 16-plane byte shuffling to a 2D or 3D buffer.
+    public static func filterAndShuffle(
         raw: UnsafeRawBufferPointer,
         width: Int,
         height: Int,
@@ -67,43 +58,33 @@ public enum TableCompression {
             }
         }
 
-        // 3. Compress with Gzip
-        return Gzip.deflate(shuffled, level: 6)
+        return shuffled
     }
 
-    /// Compresses a buffer of `SIMD4<Float>` texels.
-    public static func compress(
+    /// Applies PNG Up filtering and 16-plane byte shuffling to a `SIMD4<Float>` texel buffer.
+    public static func filterAndShuffle(
         simd4: [SIMD4<Float>],
         width: Int,
         height: Int,
         depth: Int = 1
     ) -> [UInt8] {
         simd4.withUnsafeBytes { raw in
-            compress(raw: raw, width: width, height: height, depth: depth, bpp: 16)
+            filterAndShuffle(raw: raw, width: width, height: height, depth: depth, bpp: 16)
         }
     }
 
-    /// Decompresses an archive back into raw bytes, inverting byte shuffling and Up filtering.
-    public static func decompress(
-        archive: [UInt8],
+    /// Inverts byte plane shuffling and PNG Up filtering on a preprocessed buffer.
+    public static func unshuffleAndUnfilter(
+        shuffled: [UInt8],
         width: Int,
         height: Int,
         depth: Int = 1,
         bpp: Int = 16
-    ) throws -> [UInt8] {
+    ) -> [UInt8] {
         let numPixels: Int = width * height * depth
         let totalBytes: Int = numPixels * bpp
+        precondition(shuffled.count >= totalBytes, "Shuffled buffer is smaller than width * height * depth * bpp")
 
-        // 1. Inflate Gzip payload
-        let shuffled: [UInt8] = try Gzip.inflate(archive, expectedCapacity: totalBytes)
-        guard shuffled.count == totalBytes else {
-            throw TableCompressionError.decompressedSizeMismatch(
-                expected: totalBytes,
-                actual: shuffled.count
-            )
-        }
-
-        // 2. Invert byte shuffle and 3. Invert Up filter in a single pass
         var output: [UInt8] = .init(repeating: 0, count: totalBytes)
         let rowBytes: Int = width * bpp
 
@@ -140,6 +121,78 @@ public enum TableCompression {
         }
 
         return output
+    }
+
+    /// Inverts byte plane shuffling and PNG Up filtering on a preprocessed buffer returning `SIMD4<Float>` texels.
+    public static func unshuffleAndUnfilter(
+        shuffled: [UInt8],
+        width: Int,
+        height: Int,
+        depth: Int = 1
+    ) -> [SIMD4<Float>] {
+        let bytes: [UInt8] = unshuffleAndUnfilter(shuffled: shuffled, width: width, height: height, depth: depth, bpp: 16)
+        let numPixels: Int = width * height * depth
+        return bytes.withUnsafeBytes { raw in
+            let bound: UnsafeBufferPointer<SIMD4<Float>> = raw.bindMemory(to: SIMD4<Float>.self)
+            return .init(bound.prefix(numPixels))
+        }
+    }
+
+    /// Compresses data using Gzip (deflate).
+    public static func deflate(_ data: [UInt8], level: Int32 = 6) -> [UInt8] {
+        Gzip.deflate(data, level: level)
+    }
+
+    /// Decompresses data using Gzip (inflate).
+    public static func inflate(_ data: [UInt8], expectedCapacity: Int = 0) throws -> [UInt8] {
+        try Gzip.inflate(data, expectedCapacity: expectedCapacity)
+    }
+
+    /// Compresses a 2D or 3D volume buffer using PNG Up filtering,
+    /// byte-plane shuffling, and Gzip compression.
+    public static func compress(
+        raw: UnsafeRawBufferPointer,
+        width: Int,
+        height: Int,
+        depth: Int = 1,
+        bpp: Int = 16
+    ) -> [UInt8] {
+        let shuffled: [UInt8] = filterAndShuffle(raw: raw, width: width, height: height, depth: depth, bpp: bpp)
+        return deflate(shuffled, level: 6)
+    }
+
+    /// Compresses a buffer of `SIMD4<Float>` texels.
+    public static func compress(
+        simd4: [SIMD4<Float>],
+        width: Int,
+        height: Int,
+        depth: Int = 1
+    ) -> [UInt8] {
+        simd4.withUnsafeBytes { raw in
+            compress(raw: raw, width: width, height: height, depth: depth, bpp: 16)
+        }
+    }
+
+    /// Decompresses an archive back into raw bytes, inverting byte shuffling and Up filtering.
+    public static func decompress(
+        archive: [UInt8],
+        width: Int,
+        height: Int,
+        depth: Int = 1,
+        bpp: Int = 16
+    ) throws -> [UInt8] {
+        let numPixels: Int = width * height * depth
+        let totalBytes: Int = numPixels * bpp
+
+        let shuffled: [UInt8] = try inflate(archive, expectedCapacity: totalBytes)
+        guard shuffled.count == totalBytes else {
+            throw TableCompressionError.decompressedSizeMismatch(
+                expected: totalBytes,
+                actual: shuffled.count
+            )
+        }
+
+        return unshuffleAndUnfilter(shuffled: shuffled, width: width, height: height, depth: depth, bpp: bpp)
     }
 
     /// Decompresses an archive directly into an array of `SIMD4<Float>` texels.
