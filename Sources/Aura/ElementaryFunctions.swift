@@ -1,19 +1,33 @@
 #if canImport(Darwin)
 import Darwin
-typealias Glibc = Darwin
+enum Platform {
+    @inline(__always) static func sqrt(_ x: Float) -> Float { Darwin.sqrt(x) }
+    @inline(__always) static func log(_ x: Float) -> Float { Darwin.log(x) }
+    @inline(__always) static func exp(_ x: Float) -> Float { Darwin.exp(x) }
+    @inline(__always) static func sin(_ x: Float) -> Float { Darwin.sin(x) }
+    @inline(__always) static func cos(_ x: Float) -> Float { Darwin.cos(x) }
+    @inline(__always) static func tan(_ x: Float) -> Float { Darwin.tan(x) }
+    @inline(__always) static func asin(_ x: Float) -> Float { Darwin.asin(x) }
+    @inline(__always) static func acos(_ x: Float) -> Float { Darwin.acos(x) }
+    @inline(__always) static func atan(_ x: Float) -> Float { Darwin.atan(x) }
+    @inline(__always) static func pow(_ b: Float, _ e: Float) -> Float { Darwin.pow(b, e) }
+    @inline(__always) static func atan2(_ y: Float, _ x: Float) -> Float { Darwin.atan2(y, x) }
+
+    @inline(__always) static func sqrt(_ x: Double) -> Double { Darwin.sqrt(x) }
+    @inline(__always) static func log(_ x: Double) -> Double { Darwin.log(x) }
+    @inline(__always) static func exp(_ x: Double) -> Double { Darwin.exp(x) }
+    @inline(__always) static func sin(_ x: Double) -> Double { Darwin.sin(x) }
+    @inline(__always) static func cos(_ x: Double) -> Double { Darwin.cos(x) }
+    @inline(__always) static func tan(_ x: Double) -> Double { Darwin.tan(x) }
+    @inline(__always) static func asin(_ x: Double) -> Double { Darwin.asin(x) }
+    @inline(__always) static func acos(_ x: Double) -> Double { Darwin.acos(x) }
+    @inline(__always) static func atan(_ x: Double) -> Double { Darwin.atan(x) }
+    @inline(__always) static func pow(_ b: Double, _ e: Double) -> Double { Darwin.pow(b, e) }
+    @inline(__always) static func atan2(_ y: Double, _ x: Double) -> Double { Darwin.atan2(y, x) }
+}
+typealias Glibc = Platform
 #elseif canImport(Glibc)
 import Glibc
-import func Glibc.atan2
-import func Glibc.pow
-import func Glibc.sqrt
-import func Glibc.log
-import func Glibc.exp
-import func Glibc.sin
-import func Glibc.cos
-import func Glibc.tan
-import func Glibc.asin
-import func Glibc.acos
-import func Glibc.atan
 #elseif canImport(Musl)
 import Musl
 typealias Glibc = Musl
