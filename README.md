@@ -1,14 +1,34 @@
-# Aura
+<div align="center">
 
-Aura is a command-line tool and Swift library for precomputing multi-spectral atmospheric scattering tables for planetary rendering.
+🧪 &nbsp; **aura** &nbsp; 🧪
 
-It implements Eric Bruneton’s multiple atmospheric scattering model, generating precomputed lookup tables for:
+a swift library abd command-line tool for precomputing multi-spectral atmospheric scattering tables
+
+[documentation and api reference](https://swiftinit.org/docs/aura)
+
+</div>
+
+
+## Requirements
+
+The aura library requires Swift 6.2 or later.
+
+<!-- DO NOT EDIT BELOW! AUTOSYNC CONTENT [STATUS TABLE] -->
+<!-- DO NOT EDIT ABOVE! AUTOSYNC CONTENT [STATUS TABLE] -->
+
+[Check deployment minimums](https://swiftinit.org/docs/aura#ss:platform-requirements)
+
+
+## Features
+
+Aura implements Eric Bruneton’s multiple atmospheric scattering model, generating precomputed lookup tables for:
+
 - Optical transmittance (`transmittance.bin`)
 - Single and multiple Rayleigh and Mie scattering (`scattering.bin`)
 - Ground and sky irradiance (`irradiance.bin`)
 - Atmospheric parameter uniforms for WebGL and shader pipelines (`parameters.json`)
 
-## Features
+It supports:
 
 - **Parameterized planetary atmospheres**: Configure arbitrary planets (Earth, Venus, Mars, Titan) using Ion (`.ion`) or JSON (`.json`) configuration files.
 - **Built-in presets**: Ready-to-bake atmospheric presets for Earth, Venus, Mars, and Titan.
@@ -77,14 +97,4 @@ Atmospheric configurations can be defined in Ion (`.ion`) files:
     solar_irradiance: [1.49265, 1.850945, 1.762255],
     ground_albedo: [0.1, 0.1, 0.1],
 }
-```
-
-## Building and testing
-
-```bash
-# Run tests
-swift test
-
-# Build release executable
-swift build -c release
 ```
