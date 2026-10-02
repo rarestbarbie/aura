@@ -157,9 +157,13 @@ extension AtmosphereConfig {
             throw AtmosphereError.invalidConfigFile("File is not valid UTF-8 text or binary Ion: '\(path)'")
         }
 
+        return try parse(ion: text)
+    }
+
+    public static func parse(ion text: String) throws -> AtmosphereConfig {
         let sanitizedJSON: String = sanitizeIonText(text)
         guard let jsonData: Data = sanitizedJSON.data(using: .utf8) else {
-            throw AtmosphereError.invalidConfigFile("Failed to encode sanitized JSON from '\(path)'")
+            throw AtmosphereError.invalidConfigFile("Failed to encode sanitized JSON")
         }
 
         return try JSONDecoder().decode(AtmosphereConfig.self, from: jsonData)
@@ -237,80 +241,4 @@ extension AtmosphereConfig {
         output += "}\n"
         return output
     }
-}
-
-extension AtmosphereConfig {
-    public static let earth: AtmosphereConfig = .init(
-        name: "Earth",
-        radius_bottom: 6.36e6,
-        radius_top: 6.42e6,
-        sun_angular_radius: 0.004675,
-        max_sun_zenith_angle: 102.0,
-        rayleigh_scale_height: 8000.0,
-        rayleigh_scattering: [5.8023393817123834e-06, 1.3557762447920223e-05, 3.3100005976367735e-05],
-        mie_scale_height: 1200.0,
-        mie_scattering: [3.996e-06, 3.996e-06, 3.996e-06],
-        mie_extinction: [4.44e-06, 4.44e-06, 4.44e-06],
-        mie_albedo: 0.9,
-        mie_g: 0.8,
-        ozone_extinction: [7.206534e-07, 1.7710017e-06, 6.5216177e-08],
-        ozone_altitude: 25000.0,
-        ozone_thickness: 15000.0,
-        solar_irradiance: [1.49265, 1.850945, 1.7622550000000001],
-        ground_albedo: [0.1, 0.1, 0.1]
-    )
-
-    public static let venus: AtmosphereConfig = .init(
-        name: "Venus",
-        radius_bottom: 6.052e6,
-        radius_top: 6.150e6,
-        sun_angular_radius: 0.006466,
-        max_sun_zenith_angle: 105.0,
-        rayleigh_scale_height: 15900.0,
-        rayleigh_scattering: [1.95e-5, 4.60e-5, 1.12e-4],
-        mie_scale_height: 4000.0,
-        mie_scattering: [3.0e-5, 3.0e-5, 2.5e-5],
-        mie_extinction: [3.03e-5, 3.03e-5, 2.55e-5],
-        mie_albedo: 0.99,
-        mie_g: 0.75,
-        ozone_extinction: nil,
-        solar_irradiance: [2.855, 3.541, 3.371],
-        ground_albedo: [0.1, 0.1, 0.1]
-    )
-
-    public static let mars: AtmosphereConfig = .init(
-        name: "Mars",
-        radius_bottom: 3.3895e6,
-        radius_top: 3.450e6,
-        sun_angular_radius: 0.003067,
-        max_sun_zenith_angle: 100.0,
-        rayleigh_scale_height: 11100.0,
-        rayleigh_scattering: [1.9e-7, 4.5e-7, 1.1e-6],
-        mie_scale_height: 2000.0,
-        mie_scattering: [4.0e-6, 3.2e-6, 2.0e-6],
-        mie_extinction: [4.5e-6, 3.8e-6, 2.8e-6],
-        mie_albedo: 0.85,
-        mie_g: 0.70,
-        ozone_extinction: nil,
-        solar_irradiance: [0.642, 0.796, 0.758],
-        ground_albedo: [0.25, 0.15, 0.10]
-    )
-
-    public static let titan: AtmosphereConfig = .init(
-        name: "Titan",
-        radius_bottom: 2.575e6,
-        radius_top: 2.900e6,
-        sun_angular_radius: 0.000489,
-        max_sun_zenith_angle: 108.0,
-        rayleigh_scale_height: 40000.0,
-        rayleigh_scattering: [2.5e-5, 5.8e-5, 1.4e-4],
-        mie_scale_height: 20000.0,
-        mie_scattering: [2.0e-5, 1.5e-5, 8.0e-6],
-        mie_extinction: [2.5e-5, 2.2e-5, 1.6e-5],
-        mie_albedo: 0.80,
-        mie_g: 0.85,
-        ozone_extinction: nil,
-        solar_irradiance: [0.0163, 0.0202, 0.0192],
-        ground_albedo: [0.15, 0.15, 0.15]
-    )
 }

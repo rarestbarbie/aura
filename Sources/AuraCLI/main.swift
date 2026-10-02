@@ -11,23 +11,10 @@ struct AuraCLI: ParsableCommand {
         )
     }
 
-    @Option(
-        name: .shortAndLong,
-        help: "Atmospheric preset to bake: 'Earth', 'Venus', 'Mars', or 'Titan'."
+    @Argument(
+        help: "Paths to one or more Ion (.ion) or JSON (.json) atmospheric configuration files."
     )
-    var preset: String?
-
-    @Flag(
-        name: .long,
-        help: "Bake all standard planetary presets (Earth, Venus, Mars, Titan) into a single archive."
-    )
-    var all: Bool = false
-
-    @Option(
-        name: .shortAndLong,
-        help: "Path to an Ion (.ion) or JSON (.json) atmospheric configuration file."
-    )
-    var config: String?
+    var configs: [String]
 
     @Option(
         name: .shortAndLong,
@@ -37,60 +24,51 @@ struct AuraCLI: ParsableCommand {
 
     @Option(
         name: .shortAndLong,
-        help: "Output file path (e.g. 'atmosphere.bin.gz') or directory to write archive to."
+        help: "Output file path (e.g. 'atmosphere.bin.gz' or 'atmospheres.bin.gz') or directory to write archive to."
     )
     var output: String?
 
     func run() throws {
-        if self.all {
-            let configs: [AtmosphereConfig] = [.earth, .venus, .mars, .titan]
-            let outString: String = self.output ?? "Public/Atmospheres/atmospheres.bin.gz"
-            let outPath: FilePath = .init(outString)
-            let parent: FilePath = outPath.removingLastComponent()
-            if !parent.isEmpty {
-                try FilePath.Directory(path: parent).create()
-            }
-            print("Baking atmosphere archive for all planets (Earth, Venus, Mars, Titan) (detail: \(self.detail)) to '\(outString)'...")
-            try AtmosphereBaker.bake(configs: configs, detail: self.detail, to: outPath)
-            print("Successfully baked atmospheres archive to '\(outString)'!")
-            return
+        guard !self.configs.isEmpty else {
+            print("Error: No configuration files specified.")
+            throw ExitCode.failure
         }
 
-        let atmosphereConfig: AtmosphereConfig
-        if let configPathString = self.config {
+        var atmosphereConfigs: [AtmosphereConfig] = []
+        atmosphereConfigs.reserveCapacity(self.configs.count)
+
+        for configPathString: String in self.configs {
             let configPath: FilePath = .init(configPathString)
-            print("Loading atmospheric configuration from '\(configPathString)'...")
-            atmosphereConfig = try AtmosphereConfig.load(from: configPath)
+            let config: AtmosphereConfig = try AtmosphereConfig.load(from: configPath)
+            atmosphereConfigs.append(config)
+        }
+
+        let outString: String
+        if let output: String = self.output {
+            if output.hasSuffix(".bin.gz") || output.hasSuffix(".gz") {
+                outString = output
+            } else {
+                let filename: String = atmosphereConfigs.count > 1 ? "atmospheres.bin.gz" : "atmosphere.bin.gz"
+                outString = output.hasSuffix("/") ? "\(output)\(filename)" : "\(output)/\(filename)"
+            }
         } else {
-            let presetName: String = self.preset ?? "Earth"
-            switch presetName {
-            case "Earth":
-                atmosphereConfig = .earth
-            case "Venus":
-                atmosphereConfig = .venus
-            case "Mars":
-                atmosphereConfig = .mars
-            case "Titan":
-                atmosphereConfig = .titan
-            default:
-                print("Unknown preset '\(presetName)'. Available presets: Earth, Venus, Mars, Titan")
-                throw ExitCode.failure
+            if atmosphereConfigs.count == 1 {
+                outString = "Public/\(atmosphereConfigs[0].name)/Atmosphere/atmosphere.bin.gz"
+            } else {
+                outString = "Public/Atmospheres/atmospheres.bin.gz"
             }
         }
 
-        let outString: String = self.output ?? "Public/\(atmosphereConfig.name)/Atmosphere"
         let outPath: FilePath = .init(outString)
-
-        print("Baking atmosphere for \(atmosphereConfig.name) (detail: \(self.detail)) to '\(outString)'...")
-        if outString.hasSuffix(".bin.gz") || outString.hasSuffix(".gz") {
-            let parent: FilePath = outPath.removingLastComponent()
-            if !parent.isEmpty {
-                try FilePath.Directory(path: parent).create()
-            }
-            try AtmosphereBaker.bake(configs: [atmosphereConfig], detail: self.detail, to: outPath)
-        } else {
-            try AtmosphereBaker.bake(config: atmosphereConfig, detail: self.detail, to: outPath)
+        let parent: FilePath = outPath.removingLastComponent()
+        if !parent.isEmpty {
+            try FilePath.Directory(path: parent).create()
         }
-        print("Successfully baked atmosphere archive for \(atmosphereConfig.name) to '\(outString)'!")
+
+        let names: String = atmosphereConfigs.map(\.name).joined(separator: ", ")
+        print("Baking atmosphere archive for [\(names)] (detail: \(self.detail)) to '\(outString)'...")
+        let archive: AtmosphereArchive = try .bake(configs: atmosphereConfigs, detail: self.detail)
+        try archive.write(to: outPath)
+        print("Successfully baked atmosphere archive to '\(outString)'!")
     }
 }

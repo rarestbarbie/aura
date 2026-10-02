@@ -3,55 +3,9 @@ import Foundation
 import SystemIO
 import SystemPackage
 
-public enum AtmosphereArchiveError: Error, Sendable {
-    case invalidMagic
-    case unsupportedVersion(UInt32)
-    case corruptHeader
-    case corruptManifest
-    case planetNotFound(String)
-    case tableNotFound(String)
-    case bufferOutOfBounds
-}
-
 public struct AtmosphereArchive: Sendable {
     public static let magic: [UInt8] = [0x41, 0x55, 0x52, 0x41] // "AURA"
     public static let currentVersion: UInt32 = 1
-
-    public struct TableDescriptor: Sendable, Codable, Equatable {
-        public var width: Int
-        public var height: Int
-        public var depth: Int?
-        public var offset: Int
-        public var length: Int
-
-        public init(width: Int, height: Int, depth: Int? = nil, offset: Int, length: Int) {
-            self.width = width
-            self.height = height
-            self.depth = depth
-            self.offset = offset
-            self.length = length
-        }
-    }
-
-    public struct PlanetEntry: Sendable, Codable, Equatable {
-        public var parameters: AtmosphereParameters
-        public var tables: [String: TableDescriptor]
-
-        public init(parameters: AtmosphereParameters, tables: [String: TableDescriptor]) {
-            self.parameters = parameters
-            self.tables = tables
-        }
-    }
-
-    public struct Manifest: Sendable, Codable, Equatable {
-        public var version: UInt32
-        public var planets: [String: PlanetEntry]
-
-        public init(version: UInt32 = AtmosphereArchive.currentVersion, planets: [String: PlanetEntry]) {
-            self.version = version
-            self.planets = planets
-        }
-    }
 
     public var manifest: Manifest
     public var payload: [UInt8]
@@ -60,7 +14,9 @@ public struct AtmosphereArchive: Sendable {
         self.manifest = manifest
         self.payload = payload
     }
+}
 
+extension AtmosphereArchive {
     /// Serializes the archive container (header, manifest JSON, and data payload)
     /// and compresses the entire package with Gzip.
     public func serialize() throws -> [UInt8] {
@@ -97,25 +53,25 @@ public struct AtmosphereArchive: Sendable {
     public static func deserialize(from archiveBytes: [UInt8]) throws -> AtmosphereArchive {
         let uncompressed: [UInt8] = try TableCompression.inflate(archiveBytes)
         guard uncompressed.count >= 12 else {
-            throw AtmosphereArchiveError.corruptHeader
+            throw Error.corruptHeader
         }
 
         guard uncompressed.prefix(4) == Self.magic[...] else {
-            throw AtmosphereArchiveError.invalidMagic
+            throw Error.invalidMagic
         }
 
         let version: UInt32 = uncompressed[4 ..< 8].withUnsafeBytes {
             $0.load(as: UInt32.self).littleEndian
         }
         guard version == Self.currentVersion else {
-            throw AtmosphereArchiveError.unsupportedVersion(version)
+            throw Error.unsupportedVersion(version)
         }
 
         let manifestLength: Int = Int(uncompressed[8 ..< 12].withUnsafeBytes {
             $0.load(as: UInt32.self).littleEndian
         })
         guard uncompressed.count >= 12 + manifestLength else {
-            throw AtmosphereArchiveError.corruptHeader
+            throw Error.corruptHeader
         }
 
         let manifestBytes: [UInt8] = .init(uncompressed[12 ..< 12 + manifestLength])
@@ -124,7 +80,7 @@ public struct AtmosphereArchive: Sendable {
         do {
             manifest = try JSONDecoder().decode(Manifest.self, from: manifestData)
         } catch {
-            throw AtmosphereArchiveError.corruptManifest
+            throw Error.corruptManifest
         }
 
         let payload: [UInt8] = .init(uncompressed.suffix(from: 12 + manifestLength))
@@ -134,13 +90,13 @@ public struct AtmosphereArchive: Sendable {
     /// Extracts and decodes a specific lookup table for a planet.
     public func extractTable(for planet: String, table tableName: String) throws -> [SIMD4<Float>] {
         guard let planetEntry = self.manifest.planets[planet] else {
-            throw AtmosphereArchiveError.planetNotFound(planet)
+            throw Error.planetNotFound(planet)
         }
         guard let descriptor = planetEntry.tables[tableName] else {
-            throw AtmosphereArchiveError.tableNotFound(tableName)
+            throw Error.tableNotFound(tableName)
         }
         guard self.payload.count >= descriptor.offset + descriptor.length else {
-            throw AtmosphereArchiveError.bufferOutOfBounds
+            throw Error.bufferOutOfBounds
         }
 
         let tableBytes: [UInt8] = .init(self.payload[descriptor.offset ..< descriptor.offset + descriptor.length])
