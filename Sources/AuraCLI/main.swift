@@ -2,31 +2,33 @@ import ArgumentParser
 import Aura
 import SystemPackage
 
-@main
-struct AuraCLI: ParsableCommand {
+@main struct AuraCLI: ParsableCommand {
     static var configuration: CommandConfiguration {
         .init(
             commandName: "aura",
-            abstract: "Precomputes atmospheric scattering lookup tables for planetary rendering."
+            abstract: """
+            Precomputes atmospheric scattering lookup tables for planetary rendering.
+            """
         )
     }
 
     @Argument(
         help: "Paths to one or more Ion (.ion) or JSON (.json) atmospheric configuration files."
-    )
-    var configs: [String]
+    ) var configs: [String]
 
     @Option(
         name: .shortAndLong,
-        help: "The level of detail for precomputed tables (1 to 5). Higher detail increases table resolution."
-    )
-    var detail: Int = 3
+        help: """
+        The level of detail for precomputed tables (1 to 5). Higher detail increases table resolution.
+        """
+    ) var detail: Int = 3
 
     @Option(
         name: .shortAndLong,
-        help: "Output file path (e.g. 'atmosphere.bin.gz' or 'atmospheres.bin.gz') or directory to write archive to."
-    )
-    var output: String?
+        help: """
+        Output file path (e.g. 'atmosphere.bin.gz' or 'atmospheres.bin.gz') or directory to write archive to.
+        """
+    ) var output: String?
 
     func run() throws {
         guard !self.configs.isEmpty else {
@@ -48,8 +50,12 @@ struct AuraCLI: ParsableCommand {
             if output.hasSuffix(".bin.gz") || output.hasSuffix(".gz") {
                 outString = output
             } else {
-                let filename: String = atmosphereConfigs.count > 1 ? "atmospheres.bin.gz" : "atmosphere.bin.gz"
-                outString = output.hasSuffix("/") ? "\(output)\(filename)" : "\(output)/\(filename)"
+                let filename: String = atmosphereConfigs.count > 1 ? "atmospheres.bin.gz" : """
+                atmosphere.bin.gz
+                """
+                outString = output.hasSuffix(
+                    "/"
+                ) ? "\(output)\(filename)" : "\(output)/\(filename)"
             }
         } else {
             if atmosphereConfigs.count == 1 {
@@ -66,8 +72,17 @@ struct AuraCLI: ParsableCommand {
         }
 
         let names: String = atmosphereConfigs.map(\.name).joined(separator: ", ")
-        print("Baking atmosphere archive for [\(names)] (detail: \(self.detail)) to '\(outString)'...")
-        let archive: AtmosphereArchive = try .bake(configs: atmosphereConfigs, detail: self.detail)
+        print(
+            """
+            Baking atmosphere archive for [\(names)] (detail: \(self.detail)) to '\(
+                outString
+            )'...
+            """
+        )
+        let archive: AtmosphereArchive = try .bake(
+            configs: atmosphereConfigs,
+            detail: self.detail
+        )
         try archive.write(to: outPath)
         print("Successfully baked atmosphere archive to '\(outString)'!")
     }

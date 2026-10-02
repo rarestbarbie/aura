@@ -11,9 +11,14 @@ public enum TableCompression {
     ) -> [UInt8] {
         let numPixels: Int = width * height * depth
         let totalBytes: Int = numPixels * bpp
-        precondition(raw.count >= totalBytes, "Raw buffer is smaller than width * height * depth * bpp")
+        precondition(
+            raw.count >= totalBytes,
+            "Raw buffer is smaller than width * height * depth * bpp"
+        )
 
-        let rawBytes: UnsafePointer<UInt8> = raw.baseAddress!.assumingMemoryBound(to: UInt8.self)
+        let rawBytes: UnsafePointer<UInt8> = raw.baseAddress!.assumingMemoryBound(
+            to: UInt8.self
+        )
 
         // 1. PNG Up filter along Y within each slice Z
         let rowBytes: Int = width * bpp
@@ -33,7 +38,9 @@ public enum TableCompression {
                     let rowOffset: Int = sliceOffset + y * rowBytes
                     let prevOffset: Int = rowOffset - rowBytes
                     for b: Int in 0 ..< rowBytes {
-                        filteredPtr[rowOffset + b] = rawBytes[rowOffset + b] &- rawBytes[prevOffset + b]
+                        filteredPtr[
+                            rowOffset + b
+                        ] = rawBytes[rowOffset + b] &- rawBytes[prevOffset + b]
                     }
                 }
             }
@@ -77,7 +84,10 @@ public enum TableCompression {
     ) -> [UInt8] {
         let numPixels: Int = width * height * depth
         let totalBytes: Int = numPixels * bpp
-        precondition(shuffled.count >= totalBytes, "Shuffled buffer is smaller than width * height * depth * bpp")
+        precondition(
+            shuffled.count >= totalBytes,
+            "Shuffled buffer is smaller than width * height * depth * bpp"
+        )
 
         var output: [UInt8] = .init(repeating: 0, count: totalBytes)
         let rowBytes: Int = width * bpp
@@ -104,7 +114,9 @@ public enum TableCompression {
                                 let pxOffset: Int = rowOffset + x * bpp
                                 let prevPx: Int = prevOffset + x * bpp
                                 for p: Int in 0 ..< bpp {
-                                    outPtr[pxOffset + p] = outPtr[prevPx + p] &+ shufPtr[p * numPixels + pixelIdx]
+                                    outPtr[
+                                        pxOffset + p
+                                    ] = outPtr[prevPx + p] &+ shufPtr[p * numPixels + pixelIdx]
                                 }
                                 pixelIdx += 1
                             }
@@ -124,7 +136,13 @@ public enum TableCompression {
         height: Int,
         depth: Int = 1
     ) -> [SIMD4<Float>] {
-        let bytes: [UInt8] = Self.unshuffleAndUnfilter(shuffled: shuffled, width: width, height: height, depth: depth, bpp: 16)
+        let bytes: [UInt8] = Self.unshuffleAndUnfilter(
+            shuffled: shuffled,
+            width: width,
+            height: height,
+            depth: depth,
+            bpp: 16
+        )
         let numPixels: Int = width * height * depth
         return bytes.withUnsafeBytes { raw in
             let bound: UnsafeBufferPointer<SIMD4<Float>> = raw.bindMemory(to: SIMD4<Float>.self)
@@ -151,7 +169,13 @@ public enum TableCompression {
         depth: Int = 1,
         bpp: Int = 16
     ) -> [UInt8] {
-        let shuffled: [UInt8] = Self.filterAndShuffle(raw: raw, width: width, height: height, depth: depth, bpp: bpp)
+        let shuffled: [UInt8] = Self.filterAndShuffle(
+            raw: raw,
+            width: width,
+            height: height,
+            depth: depth,
+            bpp: bpp
+        )
         return Self.deflate(shuffled, level: 7)
     }
 
@@ -186,7 +210,13 @@ public enum TableCompression {
             )
         }
 
-        return Self.unshuffleAndUnfilter(shuffled: shuffled, width: width, height: height, depth: depth, bpp: bpp)
+        return Self.unshuffleAndUnfilter(
+            shuffled: shuffled,
+            width: width,
+            height: height,
+            depth: depth,
+            bpp: bpp
+        )
     }
 
     /// Decompresses an archive directly into an array of `SIMD4<Float>` texels.
@@ -196,7 +226,13 @@ public enum TableCompression {
         height: Int,
         depth: Int = 1
     ) throws -> [SIMD4<Float>] {
-        let bytes: [UInt8] = try Self.decompress(archive: archive, width: width, height: height, depth: depth, bpp: 16)
+        let bytes: [UInt8] = try Self.decompress(
+            archive: archive,
+            width: width,
+            height: height,
+            depth: depth,
+            bpp: 16
+        )
         let numPixels: Int = width * height * depth
         return bytes.withUnsafeBytes { raw in
             let bound: UnsafeBufferPointer<SIMD4<Float>> = raw.bindMemory(to: SIMD4<Float>.self)

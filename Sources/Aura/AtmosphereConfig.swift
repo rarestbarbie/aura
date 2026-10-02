@@ -147,14 +147,18 @@ extension AtmosphereConfig {
 
         // 1. Binary Ion (magic header: 0xE0 0x01 0x00 0xEA)
         if fileData.count >= 4 &&
-           fileData[0] == 0xe0 && fileData[1] == 0x01 && fileData[2] == 0x00 && fileData[3] == 0xea {
+            fileData[
+                0
+            ] == 0xe0 && fileData[1] == 0x01 && fileData[2] == 0x00 && fileData[3] == 0xea {
             let ion: Ion = .init(bytes: ArraySlice(fileData))
             return try ion.decode(atomic: AtmosphereConfig.self)
         }
 
         // 2. Ion / JSON text
         guard let text: String = String(data: fileData, encoding: .utf8) else {
-            throw AtmosphereError.invalidConfigFile("File is not valid UTF-8 text or binary Ion: '\(path)'")
+            throw AtmosphereError.invalidConfigFile(
+                "File is not valid UTF-8 text or binary Ion: '\(path)'"
+            )
         }
 
         return try parse(ion: text)
@@ -177,7 +181,9 @@ extension AtmosphereConfig {
                 continue
             }
             if let commentRange: Range<String.Index> = trimmed.range(of: "//") {
-                trimmed = String(trimmed[..<commentRange.lowerBound]).trimmingCharacters(in: .whitespaces)
+                trimmed = String(trimmed[..<commentRange.lowerBound]).trimmingCharacters(
+                    in: .whitespaces
+                )
             }
             if trimmed.isEmpty {
                 continue
@@ -187,7 +193,11 @@ extension AtmosphereConfig {
             if let colonIdx: String.Index = processed.firstIndex(of: ":") {
                 let prefix: String = processed[..<colonIdx].trimmingCharacters(in: .whitespaces)
                 let suffix: Substring = processed[colonIdx...]
-                if !prefix.hasPrefix("\"") && !prefix.contains(" ") && !prefix.contains("{") && !prefix.contains("}") {
+                if !prefix.hasPrefix("\"") && !prefix.contains(" ") && !prefix.contains(
+                        "{"
+                    ) && !prefix.contains(
+                        "}"
+                    ) {
                     let indent: Substring = line.prefix(while: { $0.isWhitespace })
                     processed = "\(indent)\"\(prefix)\"\(suffix)"
                 }

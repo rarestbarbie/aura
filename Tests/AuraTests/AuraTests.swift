@@ -11,8 +11,8 @@ import Ion
             irradiance: Vector2<Int>
         ) = (
             transmittance: Vector2<Int>.init(32, 8)       &<< 1,
-            scattering:    Vector4<Int>.init(4, 16, 4, 1) &<< 1,
-            irradiance:    Vector2<Int>.init(8, 2)        &<< 1
+            scattering: Vector4<Int>.init(4, 16, 4, 1) &<< 1,
+            irradiance: Vector2<Int>.init(8, 2)        &<< 1
         )
         let ref: Atmosphere<Double> = .earth(resolutions: resolutions)
         let config: AtmosphereConfig = try .parse(ion: earthIon)
@@ -128,30 +128,50 @@ import Ion
         #expect(deserialized.manifest.version == AtmosphereArchive.currentVersion)
         #expect(deserialized.manifest.planets.count == 1)
 
-        let earthEntry: AtmosphereArchive.PlanetEntry = try #require(deserialized.manifest.planets["Earth"])
+        let earthEntry: AtmosphereArchive.PlanetEntry = try #require(
+            deserialized.manifest.planets["Earth"]
+        )
 
         #expect(earthEntry.parameters.radius_bottom == 6360000.0)
         #expect(earthEntry.tables["transmittance"] != nil)
         #expect(earthEntry.tables["scattering"] != nil)
         #expect(earthEntry.tables["irradiance"] != nil)
 
-        let trans: [SIMD4<Float>] = try deserialized.extractTable(for: "Earth", table: "transmittance")
-        let transDesc: AtmosphereArchive.TableDescriptor = try #require(earthEntry.tables["transmittance"])
+        let trans: [SIMD4<Float>] = try deserialized.extractTable(
+            for: "Earth",
+            table: "transmittance"
+        )
+        let transDesc: AtmosphereArchive.TableDescriptor = try #require(
+            earthEntry.tables["transmittance"]
+        )
         #expect(trans.count == transDesc.width * transDesc.height)
 
-        let scat: [SIMD4<Float>] = try deserialized.extractTable(for: "Earth", table: "scattering")
-        let scatDesc: AtmosphereArchive.TableDescriptor = try #require(earthEntry.tables["scattering"])
+        let scat: [SIMD4<Float>] = try deserialized.extractTable(
+            for: "Earth",
+            table: "scattering"
+        )
+        let scatDesc: AtmosphereArchive.TableDescriptor = try #require(
+            earthEntry.tables["scattering"]
+        )
         #expect(scat.count == scatDesc.width * scatDesc.height * (scatDesc.depth ?? 1))
 
-        let irrad: [SIMD4<Float>] = try deserialized.extractTable(for: "Earth", table: "irradiance")
-        let irradDesc: AtmosphereArchive.TableDescriptor = try #require(earthEntry.tables["irradiance"])
+        let irrad: [SIMD4<Float>] = try deserialized.extractTable(
+            for: "Earth",
+            table: "irradiance"
+        )
+        let irradDesc: AtmosphereArchive.TableDescriptor = try #require(
+            earthEntry.tables["irradiance"]
+        )
         #expect(irrad.count == irradDesc.width * irradDesc.height)
     }
 
     @Test static func AtmosphereArchiveMultiPlanetRoundtrip() throws {
         let earthConfig: AtmosphereConfig = try .parse(ion: earthIon)
         let marsConfig: AtmosphereConfig = try .parse(ion: marsIon)
-        let archive: AtmosphereArchive = try .bake(configs: [earthConfig, marsConfig], detail: 1)
+        let archive: AtmosphereArchive = try .bake(
+            configs: [earthConfig, marsConfig],
+            detail: 1
+        )
         #expect(archive.manifest.planets.count == 2)
         #expect(archive.manifest.planets["Earth"] != nil)
         #expect(archive.manifest.planets["Mars"] != nil)
@@ -164,8 +184,14 @@ import Ion
         #expect(deserialized.manifest.planets["Earth"]?.parameters.radius_bottom == 6360000.0)
         #expect(deserialized.manifest.planets["Mars"]?.parameters.radius_bottom == 3389500.0)
 
-        let earthTrans: [SIMD4<Float>] = try deserialized.extractTable(for: "Earth", table: "transmittance")
-        let marsTrans: [SIMD4<Float>] = try deserialized.extractTable(for: "Mars", table: "transmittance")
+        let earthTrans: [SIMD4<Float>] = try deserialized.extractTable(
+            for: "Earth",
+            table: "transmittance"
+        )
+        let marsTrans: [SIMD4<Float>] = try deserialized.extractTable(
+            for: "Mars",
+            table: "transmittance"
+        )
         #expect(earthTrans.count > 0)
         #expect(marsTrans.count > 0)
     }

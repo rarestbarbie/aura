@@ -9,6 +9,8 @@ let package: Package = .init(
         .library(name: "Aura", targets: ["Aura"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/ordo-one/dollup", from: "1.0.1"),
+
         .package(url: "https://github.com/rarestype/swift-io", from: "3.2.0"),
         .package(url: "https://github.com/rarestype/swift-ion", from: "2.0.0"),
         .package(url: "https://github.com/rarestype/swift-json", from: "3.5.0"),

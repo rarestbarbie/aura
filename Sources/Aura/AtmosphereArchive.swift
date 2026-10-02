@@ -66,9 +66,11 @@ extension AtmosphereArchive {
             throw Error.unsupportedVersion(version)
         }
 
-        let manifestLength: Int = Int(uncompressed[8 ..< 12].withUnsafeBytes {
-            $0.load(as: UInt32.self).littleEndian
-        })
+        let manifestLength: Int = Int(
+            uncompressed[8 ..< 12].withUnsafeBytes {
+                $0.load(as: UInt32.self).littleEndian
+            }
+        )
         guard uncompressed.count >= 12 + manifestLength else {
             throw Error.corruptHeader
         }
@@ -87,7 +89,10 @@ extension AtmosphereArchive {
     }
 
     /// Extracts and decodes a specific lookup table for a planet.
-    public func extractTable(for planet: String, table tableName: String) throws -> [SIMD4<Float>] {
+    public func extractTable(
+        for planet: String,
+        table tableName: String
+    ) throws -> [SIMD4<Float>] {
         guard let planetEntry = self.manifest.planets[planet] else {
             throw Error.planetNotFound(planet)
         }
@@ -98,7 +103,9 @@ extension AtmosphereArchive {
             throw Error.bufferOutOfBounds
         }
 
-        let tableBytes: [UInt8] = .init(self.payload[descriptor.offset ..< descriptor.offset + descriptor.length])
+        let tableBytes: [UInt8] = .init(
+            self.payload[descriptor.offset ..< descriptor.offset + descriptor.length]
+        )
         return TableCompression.unshuffleAndUnfilter(
             shuffled: tableBytes,
             width: descriptor.width,
@@ -124,8 +131,8 @@ extension AtmosphereArchive {
                 config: config,
                 resolutions: (
                     transmittance: .init(32, 8)       &<< detail,
-                    scattering:    .init(4, 16, 4, 1) &<< detail,
-                    irradiance:    .init(8, 2)        &<< detail
+                    scattering: .init(4, 16, 4, 1) &<< detail,
+                    irradiance: .init(8, 2)        &<< detail
                 )
             )
 
