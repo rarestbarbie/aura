@@ -14,9 +14,9 @@ import Ion
             scattering: Vector4<Int>.init(4, 16, 4, 1) &<< 1,
             irradiance: Vector2<Int>.init(8, 2)        &<< 1
         )
-        let ref: Atmosphere<Double> = .earth(resolutions: resolutions)
+        let ref: Atmosphere = .earth(resolutions: resolutions)
         let config: AtmosphereConfig = try .parse(ion: earthIon)
-        let parameterized: Atmosphere<Double> = .from(config: config, resolutions: resolutions)
+        let parameterized: Atmosphere = .from(config: config, resolutions: resolutions)
 
         #expect(ref.serialized == parameterized.serialized)
         #expect(ref.ground == parameterized.ground)

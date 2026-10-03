@@ -127,7 +127,7 @@ extension AtmosphereArchive {
         var payload: [UInt8] = []
 
         for config: AtmosphereConfig in configs {
-            let atmosphere: Atmosphere<Double> = .from(
+            let atmosphere: Atmosphere = .from(
                 config: config,
                 resolutions: (
                     transmittance: .init(32, 8)       &<< detail,

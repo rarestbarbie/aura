@@ -11,7 +11,7 @@ extension Atmosphere {
             self.layers.1 = upper
         }
 
-        subscript(altitude altitude: F) -> F {
+        subscript(altitude altitude: Double) -> Double {
             let layer: Layer = altitude < self.layers.0.thickness ? self.layers.0 : self.layers.1
             return layer[altitude: altitude]
         }

@@ -1,22 +1,22 @@
 extension Atmosphere.DensityProfile {
     struct Layer {
-        let thickness: F
-        let coefficient: (exponential: F, linear: F, constant: F)
-        let scale: F
+        let thickness: Double
+        let coefficient: (exponential: Double, linear: Double, constant: Double)
+        let scale: Double
 
         init(
-            thickness: F = 0,
-            coefficients: (exponential: F, linear: F, constant: F),
-            H: F
+            thickness: Double = 0,
+            coefficients: (exponential: Double, linear: Double, constant: Double),
+            H: Double
         ) {
             self.thickness = thickness
             self.coefficient = coefficients
             self.scale = -1 / H
         }
 
-        subscript(altitude altitude: F) -> F {
-            let terms: (F, F, F) = (
-                self.coefficient.exponential * F.exp(self.scale * altitude),
+        subscript(altitude altitude: Double) -> Double {
+            let terms: (Double, Double, Double) = (
+                self.coefficient.exponential * Double.exp(self.scale * altitude),
                 self.coefficient.linear * altitude,
                 self.coefficient.constant
             )

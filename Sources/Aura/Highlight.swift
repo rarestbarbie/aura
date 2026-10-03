@@ -17,7 +17,7 @@ enum Highlight {
         }
     }
 
-    static func swatch<F>(_ color: Vector3<F>) -> String where F: SwiftFloatingPoint {
+    static func swatch(_ color: Vector3<Double>) -> String {
         let r: UInt8 = .init((.init(UInt8.max) * max(0, min(color.x, 1))).rounded()),
         g: UInt8 = .init((.init(UInt8.max) * max(0, min(color.y, 1))).rounded()),
         b: UInt8 = .init((.init(UInt8.max) * max(0, min(color.z, 1))).rounded())

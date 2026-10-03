@@ -1,18 +1,18 @@
-struct _TableIrradiance<F>: Table.D2 where F: SwiftFloatingPoint {
-    let atmosphere: Atmosphere<F>
-    var buffer: [Vector3<F>]
+struct _TableIrradiance: Table.D2 {
+    let atmosphere: Atmosphere
+    var buffer: [Vector3<Double>]
 
     var size: Vector2<Int> {
         self.atmosphere.resolution.irradiance
     }
 }
+
 extension Table.Irradiance {
-    subscript(r r: F, μs μs: F) -> Vector3<F> {
-        let t: Vector2<F> = self.atmosphere.irradianceTextureCoordinate(r: r, μs: μs)
+    subscript(r r: Double, μs μs: Double) -> Vector3<Double> {
+        let t: Vector2<Double> = self.atmosphere.irradianceTextureCoordinate(r: r, μs: μs)
         return self[t]
     }
 }
-
 
 extension Table.Irradiance: CustomStringConvertible {
     var description: String {
@@ -26,7 +26,7 @@ extension Table.Irradiance: CustomStringConvertible {
                 \((0 ..< self.size.x).map {
                         (x: Int) in
 
-                        let color: Vector3<F> = self.buffer[y * self.size.x + x]
+                        let color: Vector3<Double> = self.buffer[y * self.size.x + x]
                         return """
                                 [\(Highlight.pad("\(x)", left: 3))]: \(
                             Highlight.swatch(color)
