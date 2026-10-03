@@ -109,8 +109,76 @@ extension AtmosphereTableDecoder {
         return output
     }
 
-    /// Inverts byte plane shuffling and PNG Up filtering directly into a destination buffer.
+    /// Inverts byte plane shuffling and PNG Up filtering on a preprocessed buffer directly into a destination buffer.
     @inlinable public static func decode(
+        shuffled: [UInt8],
+        into output: inout [UInt8],
+        width: Int,
+        height: Int,
+        depth: Int = 1,
+        bpp: Int = 16
+    ) {
+        let numPixels: Int = width * height * depth
+        let totalBytes: Int = numPixels * bpp
+        precondition(
+            shuffled.count >= totalBytes,
+            "Shuffled buffer is smaller than width * height * depth * bpp"
+        )
+        precondition(
+            output.count >= totalBytes,
+            "Output buffer is smaller than width * height * depth * bpp"
+        )
+
+        shuffled.withUnsafeBufferPointer { shufPtr in
+            output.withUnsafeMutableBufferPointer { outPtr in
+                Self.decode(
+                    shuffled: shufPtr,
+                    into: outPtr,
+                    width: width,
+                    height: height,
+                    depth: depth,
+                    bpp: bpp
+                )
+            }
+        }
+    }
+
+    /// Inverts byte plane shuffling and PNG Up filtering on a preprocessed buffer directly into a `SIMD4<Float>` destination buffer.
+    @inlinable public static func decode(
+        shuffled: [UInt8],
+        into output: inout [SIMD4<Float>],
+        width: Int,
+        height: Int,
+        depth: Int = 1
+    ) {
+        let numPixels: Int = width * height * depth
+        let totalBytes: Int = numPixels * 16
+        precondition(
+            shuffled.count >= totalBytes,
+            "Shuffled buffer is smaller than width * height * depth * 16"
+        )
+        precondition(
+            output.count >= numPixels,
+            "Output buffer is smaller than width * height * depth"
+        )
+
+        output.withUnsafeMutableBytes { outRaw in
+            let outPtr: UnsafeMutableBufferPointer<UInt8> = outRaw.bindMemory(to: UInt8.self)
+            shuffled.withUnsafeBufferPointer { shufPtr in
+                Self.decode(
+                    shuffled: shufPtr,
+                    into: outPtr,
+                    width: width,
+                    height: height,
+                    depth: depth,
+                    bpp: 16
+                )
+            }
+        }
+    }
+
+    /// Inverts byte plane shuffling and PNG Up filtering directly into a destination buffer.
+    @usableFromInline internal static func decode(
         shuffled: UnsafeBufferPointer<UInt8>,
         into output: UnsafeMutableBufferPointer<UInt8>,
         width: Int,

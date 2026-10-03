@@ -143,6 +143,33 @@ import Testing
         )
 
         #expect(decoded == data)
+
+        var inoutDecoded: [SIMD4<Float>] = .init(
+            repeating: .zero,
+            count: width * height * depth
+        )
+        AtmosphereTableDecoder.decode(
+            shuffled: shuffled,
+            into: &inoutDecoded,
+            width: width,
+            height: height,
+            depth: depth
+        )
+        #expect(inoutDecoded == data)
+
+        var rawBytesDecoded: [UInt8] = .init(repeating: 0, count: width * height * depth * 16)
+        AtmosphereTableDecoder.decode(
+            shuffled: shuffled,
+            into: &rawBytesDecoded,
+            width: width,
+            height: height,
+            depth: depth,
+            bpp: 16
+        )
+        let rawMatches: Bool = data.withUnsafeBytes { rawData in
+            rawBytesDecoded == Array(rawData)
+        }
+        #expect(rawMatches)
     }
 
     @Test static func AtmosphereArchiveSinglePlanetRoundtrip() throws {

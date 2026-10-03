@@ -2,8 +2,46 @@ import AuraDecoding
 import LZ77
 
 public enum TableCompression {
-    /// Applies PNG Up filtering and 16-plane byte shuffling to a 2D or 3D buffer.
+    /// Applies PNG Up filtering and 16-plane byte shuffling to a 2D or 3D buffer of raw bytes.
     public static func filterAndShuffle(
+        bytes: [UInt8],
+        width: Int,
+        height: Int,
+        depth: Int = 1,
+        bpp: Int = 16
+    ) -> [UInt8] {
+        bytes.withUnsafeBytes { raw in
+            Self.filterAndShuffle(
+                raw: raw,
+                width: width,
+                height: height,
+                depth: depth,
+                bpp: bpp
+            )
+        }
+    }
+
+    /// Applies PNG Up filtering and 16-plane byte shuffling to a 2D or 3D slice of raw bytes.
+    public static func filterAndShuffle(
+        bytes: ArraySlice<UInt8>,
+        width: Int,
+        height: Int,
+        depth: Int = 1,
+        bpp: Int = 16
+    ) -> [UInt8] {
+        bytes.withUnsafeBytes { raw in
+            Self.filterAndShuffle(
+                raw: raw,
+                width: width,
+                height: height,
+                depth: depth,
+                bpp: bpp
+            )
+        }
+    }
+
+    /// Applies PNG Up filtering and 16-plane byte shuffling to a 2D or 3D buffer.
+    internal static func filterAndShuffle(
         raw: UnsafeRawBufferPointer,
         width: Int,
         height: Int,
@@ -117,9 +155,37 @@ public enum TableCompression {
         try Gzip.extract(from: data[...])
     }
 
-    /// Compresses a 2D or 3D volume buffer using PNG Up filtering,
+    /// Compresses a 2D or 3D volume buffer of raw bytes using PNG Up filtering,
     /// byte-plane shuffling, and Gzip compression.
     public static func compress(
+        bytes: [UInt8],
+        width: Int,
+        height: Int,
+        depth: Int = 1,
+        bpp: Int = 16
+    ) -> [UInt8] {
+        bytes.withUnsafeBytes { raw in
+            Self.compress(raw: raw, width: width, height: height, depth: depth, bpp: bpp)
+        }
+    }
+
+    /// Compresses a 2D or 3D volume slice of raw bytes using PNG Up filtering,
+    /// byte-plane shuffling, and Gzip compression.
+    public static func compress(
+        bytes: ArraySlice<UInt8>,
+        width: Int,
+        height: Int,
+        depth: Int = 1,
+        bpp: Int = 16
+    ) -> [UInt8] {
+        bytes.withUnsafeBytes { raw in
+            Self.compress(raw: raw, width: width, height: height, depth: depth, bpp: bpp)
+        }
+    }
+
+    /// Compresses a 2D or 3D volume buffer using PNG Up filtering,
+    /// byte-plane shuffling, and Gzip compression.
+    internal static func compress(
         raw: UnsafeRawBufferPointer,
         width: Int,
         height: Int,
