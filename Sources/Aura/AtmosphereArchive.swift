@@ -1,9 +1,9 @@
-import Foundation
+import Ion
 import SystemIO
 import SystemPackage
 
 public struct AtmosphereArchive: Sendable {
-    public static let magic: [UInt8] = [0x41, 0x55, 0x52, 0x41] // "AURA"
+    public static let magic: [UInt8] = [0x41, 0x55, 0x52, 0x41] // “AURA”
     public static let currentVersion: UInt32 = 1
 
     public var manifest: Manifest
@@ -16,18 +16,17 @@ public struct AtmosphereArchive: Sendable {
 }
 
 extension AtmosphereArchive {
-    /// Serializes the archive container (header, manifest JSON, and data payload)
+    /// Serializes the archive container (header, manifest Ion, and data payload)
     /// and compresses the entire package with Gzip.
     public func serialize() throws -> [UInt8] {
-        let encoder: JSONEncoder = .init()
-        let manifestData: Data = try encoder.encode(self.manifest)
-        let manifestBytes: [UInt8] = .init(manifestData)
+        let manifestIon: Ion = .encode(atomic: self.manifest)
+        let manifestBytes: [UInt8] = .init(manifestIon.bytes)
 
         let headerSize: Int = 12
         var uncompressed: [UInt8] = []
         uncompressed.reserveCapacity(headerSize + manifestBytes.count + self.payload.count)
 
-        // 1. Magic: "AURA"
+        // 1. Magic: “AURA”
         uncompressed.append(contentsOf: Self.magic)
 
         // 2. Format version: UInt32 LE
@@ -38,7 +37,7 @@ extension AtmosphereArchive {
         var manifestLenLE: UInt32 = UInt32(manifestBytes.count).littleEndian
         withUnsafeBytes(of: &manifestLenLE) { uncompressed.append(contentsOf: $0) }
 
-        // 4. Manifest JSON bytes
+        // 4. Manifest Ion bytes
         uncompressed.append(contentsOf: manifestBytes)
 
         // 5. Payload (filtered and shuffled table bytes)
@@ -75,11 +74,10 @@ extension AtmosphereArchive {
             throw Error.corruptHeader
         }
 
-        let manifestBytes: [UInt8] = .init(uncompressed[12 ..< 12 + manifestLength])
-        let manifestData: Data = .init(manifestBytes)
+        let manifestSlice: ArraySlice<UInt8> = uncompressed[12 ..< 12 + manifestLength]
         let manifest: Manifest
         do {
-            manifest = try JSONDecoder().decode(Manifest.self, from: manifestData)
+            manifest = try Ion(bytes: manifestSlice).decode(atomic: Manifest.self)
         } catch {
             throw Error.corruptManifest
         }
@@ -93,10 +91,10 @@ extension AtmosphereArchive {
         for planet: String,
         table tableName: String
     ) throws -> [SIMD4<Float>] {
-        guard let planetEntry = self.manifest.planets[planet] else {
+        guard let planetEntry: PlanetEntry = self.manifest[planet] else {
             throw Error.planetNotFound(planet)
         }
-        guard let descriptor = planetEntry.tables[tableName] else {
+        guard let descriptor: TableDescriptor = planetEntry.tables[tableName] else {
             throw Error.tableNotFound(tableName)
         }
         guard self.payload.count >= descriptor.offset + descriptor.length else {
@@ -123,7 +121,7 @@ extension AtmosphereArchive {
             throw AtmosphereError.invalidDetail(detail)
         }
 
-        var planets: [String: PlanetEntry] = [:]
+        var planets: [PlanetEntry] = []
         var payload: [UInt8] = []
 
         for config: AtmosphereConfig in configs {
@@ -197,11 +195,9 @@ extension AtmosphereArchive {
                 irradiance: [p[19], p[20], p[21]]
             )
 
-            var tables: [String: TableDescriptor] = [:]
-
             let transOffset: Int = payload.count
             payload.append(contentsOf: transShuffled)
-            tables["transmittance"] = .init(
+            let transDesc: TableDescriptor = .init(
                 width: transWidth,
                 height: transHeight,
                 depth: nil,
@@ -211,7 +207,7 @@ extension AtmosphereArchive {
 
             let scatOffset: Int = payload.count
             payload.append(contentsOf: scatShuffled)
-            tables["scattering"] = .init(
+            let scatDesc: TableDescriptor = .init(
                 width: scatWidth,
                 height: scatHeight,
                 depth: scatDepth,
@@ -221,7 +217,7 @@ extension AtmosphereArchive {
 
             let irradOffset: Int = payload.count
             payload.append(contentsOf: irradShuffled)
-            tables["irradiance"] = .init(
+            let irradDesc: TableDescriptor = .init(
                 width: irradWidth,
                 height: irradHeight,
                 depth: nil,
@@ -229,7 +225,16 @@ extension AtmosphereArchive {
                 length: irradShuffled.count
             )
 
-            planets[config.name] = .init(parameters: params, tables: tables)
+            let entry: PlanetEntry = .init(
+                name: config.name,
+                parameters: params,
+                tables: .init(
+                    transmittance: transDesc,
+                    scattering: scatDesc,
+                    irradiance: irradDesc
+                )
+            )
+            planets.append(entry)
         }
 
         return .init(

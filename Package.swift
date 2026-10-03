@@ -14,7 +14,6 @@ let package: Package = .init(
         .package(url: "https://github.com/rarestype/h", from: "1.0.1"),
         .package(url: "https://github.com/rarestype/swift-io", from: "3.2.0"),
         .package(url: "https://github.com/rarestype/swift-ion", from: "2.0.0"),
-        .package(url: "https://github.com/rarestype/swift-json", from: "3.5.0"),
         .package(url: "https://github.com/tayloraswift/swift-png", from: "4.5.1"),
     ],
     targets: [
@@ -22,7 +21,6 @@ let package: Package = .init(
             name: "Aura",
             dependencies: [
                 .product(name: "Ion", package: "swift-ion"),
-                .product(name: "JSON", package: "swift-json"),
                 .product(name: "LZ77", package: "swift-png"),
                 .product(name: "SystemIO", package: "swift-io"),
             ]

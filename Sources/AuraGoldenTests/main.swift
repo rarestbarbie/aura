@@ -1,6 +1,5 @@
 import Aura
 import CRC
-import Foundation
 import SystemIO
 import SystemPackage
 
@@ -15,7 +14,7 @@ import SystemPackage
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
         let configPath: FilePath = .init("Presets/Earth.ion")
-        print("1. Loading Earth atmospheric configuration from '\(configPath)'...")
+        print("1. Loading Earth atmospheric configuration from ‘\(configPath)’...")
         let config: AtmosphereConfig = try AtmosphereConfig.load(from: configPath)
 
         print("2. Baking Earth atmosphere archive at detail 3...")
@@ -44,7 +43,9 @@ import SystemPackage
         print("4. Extracting tables and checking CRC32 against golden reference...")
 
         // Transmittance
-        guard let transDesc = earthEntry.tables["transmittance"],
+        guard let transDesc: AtmosphereArchive.TableDescriptor = earthEntry.tables[
+            "transmittance"
+        ],
         transDesc.width == 256, transDesc.height == 64 else {
             fatalError("Verification failed: Unexpected transmittance resolution!")
         }
@@ -69,7 +70,9 @@ import SystemPackage
         }
 
         // Irradiance
-        guard let irradDesc = earthEntry.tables["irradiance"],
+        guard let irradDesc: AtmosphereArchive.TableDescriptor = earthEntry.tables[
+            "irradiance"
+        ],
         irradDesc.width == 64, irradDesc.height == 16 else {
             fatalError("Verification failed: Unexpected irradiance resolution!")
         }
@@ -94,7 +97,7 @@ import SystemPackage
         }
 
         // Scattering
-        guard let scatDesc = earthEntry.tables["scattering"],
+        guard let scatDesc: AtmosphereArchive.TableDescriptor = earthEntry.tables["scattering"],
         scatDesc.width == 256, scatDesc.height == 128, scatDesc.depth == 32 else {
             fatalError("Verification failed: Unexpected scattering resolution!")
         }
@@ -119,12 +122,10 @@ import SystemPackage
         }
 
         // 5. Check against external raw golden files if explicitly provided
-        if let goldenDirEnv: String = ProcessInfo.processInfo.environment[
-                "GOLDEN_TABLES_DIR"
-            ] {
+        if let goldenDirEnv: String = Environment["GOLDEN_TABLES_DIR"] {
             let goldenDir: FilePath = .init(goldenDirEnv)
-            if FileManager.default.fileExists(atPath: goldenDir.string) {
-                print("5. Comparing float-by-float against golden files in '\(goldenDir)'...")
+            if (try? goldenDir.exists) == true {
+                print("5. Comparing float-by-float against golden files in ‘\(goldenDir)’...")
                 try verifyAgainstExternalGolden(
                     dir: goldenDir,
                     transmittance: transTable,
@@ -135,7 +136,7 @@ import SystemPackage
             } else {
                 print(
                     """
-                    5. GOLDEN_TABLES_DIR specified but '\(goldenDir)' does not exist (skipping).
+                    5. GOLDEN_TABLES_DIR specified but ‘\(goldenDir)’ does not exist (skipping).
                     """
                 )
             }
@@ -171,13 +172,12 @@ import SystemPackage
         scattering: [SIMD4<Float>]
     ) throws {
         // Transmittance
-        let transPath: String = "\(dir.string)/earth-transmittance-3x.float32"
-        if let data = try? Data(
-                contentsOf: URL(fileURLWithPath: transPath)
-            ), data.count >= 16 + transmittance.count * 16 {
-            let beFloats: [Float] = data.subdata(
-                in: 16 ..< 16 + transmittance.count * 16
-            ).withUnsafeBytes { raw in
+        let transPath: FilePath = dir.appending("earth-transmittance-3x.float32")
+        if let bytes: [UInt8] = try? transPath.read([UInt8].self),
+            bytes.count >= 16 + transmittance.count * 16 {
+            let beFloats: [Float] = bytes[
+                16 ..< 16 + transmittance.count * 16
+            ].withUnsafeBytes { raw in
                 let u32s: UnsafeBufferPointer<UInt32> = raw.bindMemory(to: UInt32.self)
                 return u32s.map { Float(bitPattern: UInt32(bigEndian: $0)) }
             }
@@ -200,13 +200,12 @@ import SystemPackage
         }
 
         // Irradiance
-        let irradPath: String = "\(dir.string)/earth-irradiance-3x.float32"
-        if let data = try? Data(
-                contentsOf: URL(fileURLWithPath: irradPath)
-            ), data.count >= 16 + irradiance.count * 16 {
-            let beFloats: [Float] = data.subdata(
-                in: 16 ..< 16 + irradiance.count * 16
-            ).withUnsafeBytes { raw in
+        let irradPath: FilePath = dir.appending("earth-irradiance-3x.float32")
+        if let bytes: [UInt8] = try? irradPath.read([UInt8].self),
+            bytes.count >= 16 + irradiance.count * 16 {
+            let beFloats: [Float] = bytes[
+                16 ..< 16 + irradiance.count * 16
+            ].withUnsafeBytes { raw in
                 let u32s: UnsafeBufferPointer<UInt32> = raw.bindMemory(to: UInt32.self)
                 return u32s.map { Float(bitPattern: UInt32(bigEndian: $0)) }
             }
@@ -229,13 +228,12 @@ import SystemPackage
         }
 
         // Scattering
-        let scatPath: String = "\(dir.string)/earth-scattering-combined-3x.float32"
-        if let data = try? Data(
-                contentsOf: URL(fileURLWithPath: scatPath)
-            ), data.count >= 20 + scattering.count * 16 {
-            let beFloats: [Float] = data.subdata(
-                in: 20 ..< 20 + scattering.count * 16
-            ).withUnsafeBytes { raw in
+        let scatPath: FilePath = dir.appending("earth-scattering-combined-3x.float32")
+        if let bytes: [UInt8] = try? scatPath.read([UInt8].self),
+            bytes.count >= 20 + scattering.count * 16 {
+            let beFloats: [Float] = bytes[
+                20 ..< 20 + scattering.count * 16
+            ].withUnsafeBytes { raw in
                 let u32s: UnsafeBufferPointer<UInt32> = raw.bindMemory(to: UInt32.self)
                 return u32s.map { Float(bitPattern: UInt32(bigEndian: $0)) }
             }

@@ -13,7 +13,7 @@ import SystemPackage
     }
 
     @Argument(
-        help: "Paths to one or more Ion (.ion) or JSON (.json) atmospheric configuration files."
+        help: "Paths to one or more Ion (.ion) atmospheric configuration files."
     ) var configs: [String]
 
     @Option(

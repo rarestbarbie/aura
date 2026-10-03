@@ -1,6 +1,5 @@
-import Foundation
-import Testing
 import Ion
+import Testing
 @testable import Aura
 
 @Suite struct AuraTests {
