@@ -9,10 +9,6 @@ import SystemPackage
     static let goldenScatteringCRC32: UInt32 = 0xA71A2E72
 
     static func main() throws {
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("  Aura Golden Reference Test (Detail 3 Full Radiative Simulation)")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-
         let configPath: FilePath = .init("Presets/Earth.ion")
         print("1. Loading Earth atmospheric configuration from ‘\(configPath)’...")
         let config: AtmosphereConfig = try AtmosphereConfig.load(from: configPath)
@@ -160,9 +156,7 @@ import SystemPackage
             """
         )
 
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("  ALL GOLDEN REFERENCE CHECKS PASSED PERFECTLY!")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        print("💖 output matches golden reference!")
     }
 
     private static func verifyAgainstExternalGolden(
