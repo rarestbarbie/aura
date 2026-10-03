@@ -3,5 +3,3 @@ extension TableCompression {
         case decompressedSizeMismatch(expected: Int, actual: Int)
     }
 }
-
-public typealias TableCompressionError = TableCompression.Error

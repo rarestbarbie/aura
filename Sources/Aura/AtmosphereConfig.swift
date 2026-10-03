@@ -5,7 +5,7 @@ public import SystemPackage
 public struct AtmosphereConfig: Sendable {
     public var name: String
 
-    // Planetary geometry (meters and radians)
+    // Planetary geometry (meters and degrees)
     public var radius_bottom: Double
     public var radius_top: Double
     public var sun_angular_radius: Double

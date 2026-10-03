@@ -308,10 +308,10 @@ extension Table.Scattering: CustomStringConvertible {
         {
         \((0 ..< self.size.z).map {
                 (z: Int) in
-                return """
+                """
                 \((0 ..< self.size.y).map {
                         (y: Int) in
-                        return """
+                        """
                             [\(z), \(y)]:
                         \((0 ..< self.size.x).map {
                                 (x: Int) in

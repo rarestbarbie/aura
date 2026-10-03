@@ -39,7 +39,9 @@ struct Atmosphere {
         scattering4: (R: Int, M: Int, MS: Int, N: Int),
         irradiance: Vector2<Int>
     )
+}
 
+extension Atmosphere {
     // Serialized parameters for glsl shader
     var serialized: [Double] {
         [
@@ -611,7 +613,6 @@ extension Atmosphere {
             count: self.resolution.irradiance.wrappingVolume
         )
         for n: Int in 2 ... N {
-            print("n = \(n)")
             let texture: (
                 irradiance: [Vector3<Double>],
                 density: [Vector3<Double>],

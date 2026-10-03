@@ -1,5 +1,5 @@
 import AuraDecoding
-public import Ion
+import Ion
 import SystemIO
 import SystemPackage
 
@@ -31,20 +31,6 @@ public struct AtmosphereArchive: Sendable, Equatable {
 
     public subscript(name: String) -> PlanetEntry? {
         self.manifest[name]
-    }
-}
-
-extension AtmosphereArchive: IonEncodable {
-    public typealias NullGroup = Manifest.NullGroup
-
-    public func encode(to ion: inout Ion.NodeEncoder) {
-        self.manifest.encode(to: &ion)
-    }
-}
-
-extension AtmosphereArchive: IonDecodable {
-    public init(ion: borrowing Ion.NodeDecoder) throws {
-        self.init(manifest: try .init(ion: ion))
     }
 }
 
@@ -118,7 +104,7 @@ extension AtmosphereArchive {
             let transWidth: Int = atmosphere.resolution.transmittance.x
             let transHeight: Int = atmosphere.resolution.transmittance.y
             let transBuffer: [SIMD4<Float>] = transmittance.buffer.map {
-                SIMD4<Float>(Float($0.x), Float($0.y), Float($0.z), 1.0)
+                .init(.init($0.x), .init($0.y), .init($0.z), 1.0)
             }
             let transShuffled: [UInt8] = TableCompression.filterAndShuffle(
                 simd4: transBuffer,
@@ -132,7 +118,7 @@ extension AtmosphereArchive {
             let scatHeight: Int = atmosphere.resolution.scattering.y
             let scatDepth: Int = atmosphere.resolution.scattering.z
             let scatBuffer: [SIMD4<Float>] = zip(scattering.buffer, mie.buffer).map {
-                SIMD4<Float>(Float($0.x), Float($0.y), Float($0.z), Float($1.x))
+                .init(.init($0.x), .init($0.y), .init($0.z), .init($1.x))
             }
             let scatShuffled: [UInt8] = TableCompression.filterAndShuffle(
                 simd4: scatBuffer,
@@ -145,7 +131,7 @@ extension AtmosphereArchive {
             let irradWidth: Int = atmosphere.resolution.irradiance.x
             let irradHeight: Int = atmosphere.resolution.irradiance.y
             let irradBuffer: [SIMD4<Float>] = irradiance.buffer.map {
-                SIMD4<Float>(Float($0.x), Float($0.y), Float($0.z), 1.0)
+                .init(.init($0.x), .init($0.y), .init($0.z), 1.0)
             }
             let irradShuffled: [UInt8] = TableCompression.filterAndShuffle(
                 simd4: irradBuffer,
@@ -164,12 +150,12 @@ extension AtmosphereArchive {
                 rayleigh_scattering: [p[4], p[5], p[6]],
                 mie_scattering: [p[7], p[8], p[9]],
                 mie_g: p[10],
-                resolution_transmittance: [Int(p[11]), Int(p[12])],
-                resolution_scattering4_R: Int(p[13]),
-                resolution_scattering4_M: Int(p[14]),
-                resolution_scattering4_MS: Int(p[15]),
-                resolution_scattering4_N: Int(p[16]),
-                resolution_irradiance: [Int(p[17]), Int(p[18])],
+                resolution_transmittance: [.init(p[11]), .init(p[12])],
+                resolution_scattering4_R: .init(p[13]),
+                resolution_scattering4_M: .init(p[14]),
+                resolution_scattering4_MS: .init(p[15]),
+                resolution_scattering4_N: .init(p[16]),
+                resolution_irradiance: [.init(p[17]), .init(p[18])],
                 irradiance: [p[19], p[20], p[21]]
             )
 

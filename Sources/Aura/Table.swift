@@ -35,7 +35,7 @@ extension Table.D2 {
         size: Vector2<Int>,
         transform: (Vector2<Int>) throws -> R
     ) rethrows -> [R] {
-        return try .init(unsafeUninitializedCapacity: size.wrappingVolume) {
+        try .init(unsafeUninitializedCapacity: size.wrappingVolume) {
             for j: Int in 0 ..< size.y {
                 for i: Int in 0 ..< size.x {
                     $0[j * size.x + i] = try transform(.init(i, j))
@@ -66,7 +66,7 @@ extension Table.D3 {
         size: Vector3<Int>,
         transform: (Vector3<Int>) throws -> R
     ) rethrows -> [R] {
-        return try .init(unsafeUninitializedCapacity: size.wrappingVolume) {
+        try .init(unsafeUninitializedCapacity: size.wrappingVolume) {
             for k: Int in 0 ..< size.z {
                 for j: Int in 0 ..< size.y {
                     for i: Int in 0 ..< size.x {

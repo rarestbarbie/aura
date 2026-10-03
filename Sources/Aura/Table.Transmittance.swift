@@ -183,7 +183,7 @@ extension Table.Transmittance: CustomStringConvertible {
         {
         \((0 ..< self.size.y).map {
                 (y: Int) in
-                return """
+                """
                     [\(y)]:
                 \((0 ..< self.size.x).map {
                         (x: Int) in
