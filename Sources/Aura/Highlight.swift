@@ -39,6 +39,6 @@ enum Highlight {
     }
 
     static func pad(_ string: String, left count: Int) -> String {
-        .init(repeating: " ", count: count - string.count) + string
+        .init(repeating: " ", count: max(0, count - string.count)) + string
     }
 }
