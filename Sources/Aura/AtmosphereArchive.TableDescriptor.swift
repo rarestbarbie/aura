@@ -5,21 +5,18 @@ extension AtmosphereArchive {
         public var width: Int
         public var height: Int
         public var depth: Int?
-        public var offset: Int
-        public var length: Int
+        public var data: [UInt8]
 
         public init(
             width: Int,
             height: Int,
             depth: Int? = nil,
-            offset: Int,
-            length: Int
+            data: [UInt8]
         ) {
             self.width = width
             self.height = height
             self.depth = depth
-            self.offset = offset
-            self.length = length
+            self.data = data
         }
     }
 }
@@ -29,8 +26,7 @@ extension AtmosphereArchive.TableDescriptor {
         case width
         case height
         case depth
-        case offset
-        case length
+        case data
     }
 }
 
@@ -39,19 +35,21 @@ extension AtmosphereArchive.TableDescriptor: IonEncodableStruct {
         ion[.width] = self.width
         ion[.height] = self.height
         ion[.depth] = self.depth
-        ion[.offset] = self.offset
-        ion[.length] = self.length
+        ion[.data] = Ion.BlobView<[UInt8], Ion.BlobType>(bytes: self.data)
     }
 }
 
 extension AtmosphereArchive.TableDescriptor: IonDecodableStruct {
     public init(ion: borrowing Ion.StructDecoder<CodingKey>) throws {
+        let width: Int = try ion[.width].decode()
+        let height: Int = try ion[.height].decode()
+        let depth: Int? = try ion[.depth]?.decode()
+        let blob: Ion.BlobView<ArraySlice<UInt8>, Ion.BlobType> = try ion[.data].decode()
         self.init(
-            width: try ion[.width].decode(),
-            height: try ion[.height].decode(),
-            depth: try ion[.depth]?.decode(),
-            offset: try ion[.offset].decode(),
-            length: try ion[.length].decode()
+            width: width,
+            height: height,
+            depth: depth,
+            data: .init(blob.bytes)
         )
     }
 }

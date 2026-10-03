@@ -1,6 +1,7 @@
+@testable import Aura
+import AuraDecoding
 import Ion
 import Testing
-@testable import Aura
 
 @Suite struct AuraTests {
     @Test static func EarthParametersMatch() throws {
@@ -113,15 +114,60 @@ import Testing
         #expect(decompressed == data)
     }
 
+    @Test static func AtmosphereTableDecoderDirect() throws {
+        let width: Int = 16
+        let height: Int = 8
+        let depth: Int = 2
+        var data: [SIMD4<Float>] = []
+        data.reserveCapacity(width * height * depth)
+        for z: Int in 0 ..< depth {
+            for y: Int in 0 ..< height {
+                for x: Int in 0 ..< width {
+                    data.append(.init(Float(x), Float(y), Float(z), Float(x + y + z)))
+                }
+            }
+        }
+
+        let shuffled: [UInt8] = TableCompression.filterAndShuffle(
+            simd4: data,
+            width: width,
+            height: height,
+            depth: depth
+        )
+
+        let decoded: [SIMD4<Float>] = AtmosphereTableDecoder.decode(
+            shuffled: shuffled,
+            width: width,
+            height: height,
+            depth: depth
+        )
+
+        #expect(decoded == data)
+    }
+
     @Test static func AtmosphereArchiveSinglePlanetRoundtrip() throws {
         let earthConfig: AtmosphereConfig = try .parse(ion: earthIon)
         let archive: AtmosphereArchive = try .bake(configs: [earthConfig], detail: 1)
         #expect(archive.manifest.planets["Earth"] != nil)
         #expect(archive.manifest.planets["earth"] == nil) // Distinct casing!
 
+        let earthEntryBefore: AtmosphereArchive.PlanetEntry = try #require(
+            archive.manifest.planets["Earth"]
+        )
+        let tables: [AtmosphereArchive.TableDescriptor] = [
+            earthEntryBefore.tables.transmittance,
+            earthEntryBefore.tables.scattering,
+            earthEntryBefore.tables.irradiance,
+        ]
+        var totalRawBytes: Int = 0
+        for desc: AtmosphereArchive.TableDescriptor in tables {
+            let texels: Int = desc.width * desc.height * (desc.depth ?? 1)
+            totalRawBytes += texels * MemoryLayout<SIMD4<Float>>.stride
+        }
+
         let compressedBytes: [UInt8] = try archive.serialize()
         #expect(compressedBytes.count > 0)
-        #expect(compressedBytes.count < archive.payload.count)
+        #expect(compressedBytes.count < totalRawBytes)
 
         let deserialized: AtmosphereArchive = try .deserialize(from: compressedBytes)
         #expect(deserialized.manifest.version == AtmosphereArchive.currentVersion)

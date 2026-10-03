@@ -1,89 +1,74 @@
-import Ion
+import AuraDecoding
+public import Ion
 import SystemIO
 import SystemPackage
 
-public struct AtmosphereArchive: Sendable {
-    public static let magic: [UInt8] = [0x41, 0x55, 0x52, 0x41] // “AURA”
+public struct AtmosphereArchive: Sendable, Equatable {
     public static let currentVersion: UInt32 = 1
 
     public var manifest: Manifest
-    public var payload: [UInt8]
 
-    public init(manifest: Manifest, payload: [UInt8]) {
+    public var version: UInt32 {
+        get { self.manifest.version }
+        set { self.manifest.version = newValue }
+    }
+
+    public var planets: [PlanetEntry] {
+        get { self.manifest.planets }
+        set { self.manifest.planets = newValue }
+    }
+
+    public init(manifest: Manifest) {
         self.manifest = manifest
-        self.payload = payload
+    }
+
+    public init(
+        version: UInt32 = AtmosphereArchive.currentVersion,
+        planets: [PlanetEntry]
+    ) {
+        self.manifest = .init(version: version, planets: planets)
+    }
+
+    public subscript(name: String) -> PlanetEntry? {
+        self.manifest[name]
+    }
+}
+
+extension AtmosphereArchive: IonEncodable {
+    public typealias NullGroup = Manifest.NullGroup
+
+    public func encode(to ion: inout Ion.NodeEncoder) {
+        self.manifest.encode(to: &ion)
+    }
+}
+
+extension AtmosphereArchive: IonDecodable {
+    public init(ion: borrowing Ion.NodeDecoder) throws {
+        self.init(manifest: try .init(ion: ion))
     }
 }
 
 extension AtmosphereArchive {
-    /// Serializes the archive container (header, manifest Ion, and data payload)
-    /// and compresses the entire package with Gzip.
+    /// Serializes the archive as a Gzip-compressed binary Ion structure.
     public func serialize() throws -> [UInt8] {
-        let manifestIon: Ion = .encode(atomic: self.manifest)
-        let manifestBytes: [UInt8] = .init(manifestIon.bytes)
-
-        let headerSize: Int = 12
-        var uncompressed: [UInt8] = []
-        uncompressed.reserveCapacity(headerSize + manifestBytes.count + self.payload.count)
-
-        // 1. Magic: “AURA”
-        uncompressed.append(contentsOf: Self.magic)
-
-        // 2. Format version: UInt32 LE
-        var versionLE: UInt32 = self.manifest.version.littleEndian
-        withUnsafeBytes(of: &versionLE) { uncompressed.append(contentsOf: $0) }
-
-        // 3. Manifest byte length: UInt32 LE
-        var manifestLenLE: UInt32 = UInt32(manifestBytes.count).littleEndian
-        withUnsafeBytes(of: &manifestLenLE) { uncompressed.append(contentsOf: $0) }
-
-        // 4. Manifest Ion bytes
-        uncompressed.append(contentsOf: manifestBytes)
-
-        // 5. Payload (filtered and shuffled table bytes)
-        uncompressed.append(contentsOf: self.payload)
-
-        // 6. Gzip compression
-        return TableCompression.deflate(uncompressed, level: 7)
+        let ion: Ion = .encode(atomic: self.manifest)
+        return TableCompression.deflate(Array(ion.bytes), level: 7)
     }
 
-    /// Decompresses a Gzip package and deserializes the container.
+    /// Decompresses (if gzipped) and deserializes an AtmosphereArchive Ion structure.
     public static func deserialize(from archiveBytes: [UInt8]) throws -> AtmosphereArchive {
-        let uncompressed: [UInt8] = try TableCompression.inflate(archiveBytes)
-        guard uncompressed.count >= 12 else {
-            throw Error.corruptHeader
+        let uncompressed: [UInt8]
+        if archiveBytes.starts(with: [0x1f, 0x8b]) {
+            uncompressed = try TableCompression.inflate(archiveBytes)
+        } else {
+            uncompressed = archiveBytes
         }
 
-        guard uncompressed.prefix(4) == Self.magic[...] else {
-            throw Error.invalidMagic
+        let manifest: Manifest = try Ion(bytes: uncompressed[...]).decode(atomic: Manifest.self)
+        guard manifest.version == Self.currentVersion else {
+            throw Error.unsupportedVersion(manifest.version)
         }
-
-        let version: UInt32 = uncompressed[4 ..< 8].withUnsafeBytes {
-            $0.load(as: UInt32.self).littleEndian
-        }
-        guard version == Self.currentVersion else {
-            throw Error.unsupportedVersion(version)
-        }
-
-        let manifestLength: Int = Int(
-            uncompressed[8 ..< 12].withUnsafeBytes {
-                $0.load(as: UInt32.self).littleEndian
-            }
-        )
-        guard uncompressed.count >= 12 + manifestLength else {
-            throw Error.corruptHeader
-        }
-
-        let manifestSlice: ArraySlice<UInt8> = uncompressed[12 ..< 12 + manifestLength]
-        let manifest: Manifest
-        do {
-            manifest = try Ion(bytes: manifestSlice).decode(atomic: Manifest.self)
-        } catch {
-            throw Error.corruptManifest
-        }
-
-        let payload: [UInt8] = .init(uncompressed.suffix(from: 12 + manifestLength))
-        return .init(manifest: manifest, payload: payload)
+        return .init(manifest: manifest)
     }
 
     /// Extracts and decodes a specific lookup table for a planet.
@@ -97,15 +82,9 @@ extension AtmosphereArchive {
         guard let descriptor: TableDescriptor = planetEntry.tables[tableName] else {
             throw Error.tableNotFound(tableName)
         }
-        guard self.payload.count >= descriptor.offset + descriptor.length else {
-            throw Error.bufferOutOfBounds
-        }
 
-        let tableBytes: [UInt8] = .init(
-            self.payload[descriptor.offset ..< descriptor.offset + descriptor.length]
-        )
-        return TableCompression.unshuffleAndUnfilter(
-            shuffled: tableBytes,
+        return AtmosphereTableDecoder.decode(
+            shuffled: descriptor.data,
             width: descriptor.width,
             height: descriptor.height,
             depth: descriptor.depth ?? 1
@@ -122,7 +101,6 @@ extension AtmosphereArchive {
         }
 
         var planets: [PlanetEntry] = []
-        var payload: [UInt8] = []
 
         for config: AtmosphereConfig in configs {
             let atmosphere: Atmosphere = .from(
@@ -195,34 +173,25 @@ extension AtmosphereArchive {
                 irradiance: [p[19], p[20], p[21]]
             )
 
-            let transOffset: Int = payload.count
-            payload.append(contentsOf: transShuffled)
             let transDesc: TableDescriptor = .init(
                 width: transWidth,
                 height: transHeight,
                 depth: nil,
-                offset: transOffset,
-                length: transShuffled.count
+                data: transShuffled
             )
 
-            let scatOffset: Int = payload.count
-            payload.append(contentsOf: scatShuffled)
             let scatDesc: TableDescriptor = .init(
                 width: scatWidth,
                 height: scatHeight,
                 depth: scatDepth,
-                offset: scatOffset,
-                length: scatShuffled.count
+                data: scatShuffled
             )
 
-            let irradOffset: Int = payload.count
-            payload.append(contentsOf: irradShuffled)
             let irradDesc: TableDescriptor = .init(
                 width: irradWidth,
                 height: irradHeight,
                 depth: nil,
-                offset: irradOffset,
-                length: irradShuffled.count
+                data: irradShuffled
             )
 
             let entry: PlanetEntry = .init(
@@ -238,8 +207,7 @@ extension AtmosphereArchive {
         }
 
         return .init(
-            manifest: .init(version: Self.currentVersion, planets: planets),
-            payload: payload
+            manifest: .init(version: Self.currentVersion, planets: planets)
         )
     }
 

@@ -1,3 +1,4 @@
+import AuraDecoding
 import LZ77
 
 public enum TableCompression {
@@ -82,51 +83,13 @@ public enum TableCompression {
         depth: Int = 1,
         bpp: Int = 16
     ) -> [UInt8] {
-        let numPixels: Int = width * height * depth
-        let totalBytes: Int = numPixels * bpp
-        precondition(
-            shuffled.count >= totalBytes,
-            "Shuffled buffer is smaller than width * height * depth * bpp"
+        AtmosphereTableDecoder.decode(
+            shuffled: shuffled,
+            width: width,
+            height: height,
+            depth: depth,
+            bpp: bpp
         )
-
-        var output: [UInt8] = .init(repeating: 0, count: totalBytes)
-        let rowBytes: Int = width * bpp
-
-        shuffled.withUnsafeBufferPointer { shufPtr in
-            output.withUnsafeMutableBufferPointer { outPtr in
-                var pixelIdx: Int = 0
-                for z: Int in 0 ..< depth {
-                    let sliceOffset: Int = z * height * rowBytes
-                    for y: Int in 0 ..< height {
-                        let rowOffset: Int = sliceOffset + y * rowBytes
-                        let prevOffset: Int = rowOffset - rowBytes
-
-                        if y == 0 {
-                            for x: Int in 0 ..< width {
-                                let pxOffset: Int = rowOffset + x * bpp
-                                for p: Int in 0 ..< bpp {
-                                    outPtr[pxOffset + p] = shufPtr[p * numPixels + pixelIdx]
-                                }
-                                pixelIdx += 1
-                            }
-                        } else {
-                            for x: Int in 0 ..< width {
-                                let pxOffset: Int = rowOffset + x * bpp
-                                let prevPx: Int = prevOffset + x * bpp
-                                for p: Int in 0 ..< bpp {
-                                    outPtr[
-                                        pxOffset + p
-                                    ] = outPtr[prevPx + p] &+ shufPtr[p * numPixels + pixelIdx]
-                                }
-                                pixelIdx += 1
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return output
     }
 
     /// Inverts byte plane shuffling and PNG Up filtering on a preprocessed buffer returning `SIMD4<Float>` texels.
@@ -136,18 +99,12 @@ public enum TableCompression {
         height: Int,
         depth: Int = 1
     ) -> [SIMD4<Float>] {
-        let bytes: [UInt8] = Self.unshuffleAndUnfilter(
+        AtmosphereTableDecoder.decode(
             shuffled: shuffled,
             width: width,
             height: height,
-            depth: depth,
-            bpp: 16
+            depth: depth
         )
-        let numPixels: Int = width * height * depth
-        return bytes.withUnsafeBytes { raw in
-            let bound: UnsafeBufferPointer<SIMD4<Float>> = raw.bindMemory(to: SIMD4<Float>.self)
-            return .init(bound.prefix(numPixels))
-        }
     }
 
     /// Compresses data using Gzip (deflate).
