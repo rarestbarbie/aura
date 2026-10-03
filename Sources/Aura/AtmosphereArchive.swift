@@ -141,22 +141,22 @@ extension AtmosphereArchive {
             )
 
             // 4. Physical parameters & resolutions
-            let serialized: [Float] = atmosphere.serialized.map(Float.init)
+            let p: [Float] = atmosphere.serialized.map(Float.init)
             let params: AtmosphereParameters = .init(
-                radius_bottom: serialized[0],
-                radius_top: serialized[1],
-                radius_sun: serialized[2],
-                mu_s_min: serialized[3],
-                rayleigh_scattering: [serialized[4], serialized[5], serialized[6]],
-                mie_scattering: [serialized[7], serialized[8], serialized[9]],
-                mie_g: serialized[10],
-                resolution_transmittance: [.init(serialized[11]), .init(serialized[12])],
-                resolution_scattering4_R: .init(serialized[13]),
-                resolution_scattering4_M: .init(serialized[14]),
-                resolution_scattering4_MS: .init(serialized[15]),
-                resolution_scattering4_N: .init(serialized[16]),
-                resolution_irradiance: [.init(serialized[17]), .init(serialized[18])],
-                irradiance: [serialized[19], serialized[20], serialized[21]]
+                radius_bottom: p[0],
+                radius_top: p[1],
+                radius_sun: p[2],
+                mu_s_min: p[3],
+                rayleigh_scattering: [p[4], p[5], p[6]],
+                mie_scattering: [p[7], p[8], p[9]],
+                mie_g: p[10],
+                resolution_transmittance: [.init(p[11]), .init(p[12])],
+                resolution_scattering4_R: .init(p[13]),
+                resolution_scattering4_M: .init(p[14]),
+                resolution_scattering4_MS: .init(p[15]),
+                resolution_scattering4_N: .init(p[16]),
+                resolution_irradiance: [.init(p[17]), .init(p[18])],
+                irradiance: [p[19], p[20], p[21]]
             )
 
             let transmittanceDescriptor: TableDescriptor = .init(
