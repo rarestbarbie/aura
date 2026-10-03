@@ -1,5 +1,5 @@
 import AuraDecoding
-public import Ion
+import Ion
 import SystemIO
 import SystemPackage
 
@@ -31,20 +31,6 @@ public struct AtmosphereArchive: Sendable, Equatable {
 
     public subscript(name: String) -> PlanetEntry? {
         self.manifest[name]
-    }
-}
-
-extension AtmosphereArchive: IonEncodable {
-    public typealias NullGroup = Manifest.NullGroup
-
-    public func encode(to ion: inout Ion.NodeEncoder) {
-        self.manifest.encode(to: &ion)
-    }
-}
-
-extension AtmosphereArchive: IonDecodable {
-    public init(ion: borrowing Ion.NodeDecoder) throws {
-        self.init(manifest: try .init(ion: ion))
     }
 }
 
@@ -115,42 +101,42 @@ extension AtmosphereArchive {
             let (transmittance, mie, scattering, irradiance) = atmosphere.tables()
 
             // 1. Transmittance table
-            let transWidth: Int = atmosphere.resolution.transmittance.x
-            let transHeight: Int = atmosphere.resolution.transmittance.y
-            let transBuffer: [SIMD4<Float>] = transmittance.buffer.map {
-                SIMD4<Float>(Float($0.x), Float($0.y), Float($0.z), 1.0)
+            let transmittanceWidth: Int = atmosphere.resolution.transmittance.x
+            let transmittanceHeight: Int = atmosphere.resolution.transmittance.y
+            let transmittanceBuffer: [SIMD4<Float>] = transmittance.buffer.map {
+                .init(.init($0.x), .init($0.y), .init($0.z), 1.0)
             }
-            let transShuffled: [UInt8] = TableCompression.filterAndShuffle(
-                simd4: transBuffer,
-                width: transWidth,
-                height: transHeight,
+            let transmittanceShuffled: [UInt8] = TableCompression.filterAndShuffle(
+                simd4: transmittanceBuffer,
+                width: transmittanceWidth,
+                height: transmittanceHeight,
                 depth: 1
             )
 
             // 2. Scattering table (Mie merged into W)
-            let scatWidth: Int = atmosphere.resolution.scattering.x
-            let scatHeight: Int = atmosphere.resolution.scattering.y
-            let scatDepth: Int = atmosphere.resolution.scattering.z
-            let scatBuffer: [SIMD4<Float>] = zip(scattering.buffer, mie.buffer).map {
-                SIMD4<Float>(Float($0.x), Float($0.y), Float($0.z), Float($1.x))
+            let scatteringWidth: Int = atmosphere.resolution.scattering.x
+            let scatteringHeight: Int = atmosphere.resolution.scattering.y
+            let scatteringDepth: Int = atmosphere.resolution.scattering.z
+            let scatteringBuffer: [SIMD4<Float>] = zip(scattering.buffer, mie.buffer).map {
+                .init(.init($0.x), .init($0.y), .init($0.z), .init($1.x))
             }
-            let scatShuffled: [UInt8] = TableCompression.filterAndShuffle(
-                simd4: scatBuffer,
-                width: scatWidth,
-                height: scatHeight,
-                depth: scatDepth
+            let scatteringShuffled: [UInt8] = TableCompression.filterAndShuffle(
+                simd4: scatteringBuffer,
+                width: scatteringWidth,
+                height: scatteringHeight,
+                depth: scatteringDepth
             )
 
             // 3. Irradiance table
-            let irradWidth: Int = atmosphere.resolution.irradiance.x
-            let irradHeight: Int = atmosphere.resolution.irradiance.y
-            let irradBuffer: [SIMD4<Float>] = irradiance.buffer.map {
-                SIMD4<Float>(Float($0.x), Float($0.y), Float($0.z), 1.0)
+            let irradianceWidth: Int = atmosphere.resolution.irradiance.x
+            let irradianceHeight: Int = atmosphere.resolution.irradiance.y
+            let irradianceBuffer: [SIMD4<Float>] = irradiance.buffer.map {
+                .init(.init($0.x), .init($0.y), .init($0.z), 1.0)
             }
-            let irradShuffled: [UInt8] = TableCompression.filterAndShuffle(
-                simd4: irradBuffer,
-                width: irradWidth,
-                height: irradHeight,
+            let irradianceShuffled: [UInt8] = TableCompression.filterAndShuffle(
+                simd4: irradianceBuffer,
+                width: irradianceWidth,
+                height: irradianceHeight,
                 depth: 1
             )
 
@@ -164,43 +150,43 @@ extension AtmosphereArchive {
                 rayleigh_scattering: [p[4], p[5], p[6]],
                 mie_scattering: [p[7], p[8], p[9]],
                 mie_g: p[10],
-                resolution_transmittance: [Int(p[11]), Int(p[12])],
-                resolution_scattering4_R: Int(p[13]),
-                resolution_scattering4_M: Int(p[14]),
-                resolution_scattering4_MS: Int(p[15]),
-                resolution_scattering4_N: Int(p[16]),
-                resolution_irradiance: [Int(p[17]), Int(p[18])],
+                resolution_transmittance: [.init(p[11]), .init(p[12])],
+                resolution_scattering4_R: .init(p[13]),
+                resolution_scattering4_M: .init(p[14]),
+                resolution_scattering4_MS: .init(p[15]),
+                resolution_scattering4_N: .init(p[16]),
+                resolution_irradiance: [.init(p[17]), .init(p[18])],
                 irradiance: [p[19], p[20], p[21]]
             )
 
-            let transDesc: TableDescriptor = .init(
-                width: transWidth,
-                height: transHeight,
+            let transmittanceDescriptor: TableDescriptor = .init(
+                width: transmittanceWidth,
+                height: transmittanceHeight,
                 depth: nil,
-                data: transShuffled
+                data: transmittanceShuffled
             )
 
-            let scatDesc: TableDescriptor = .init(
-                width: scatWidth,
-                height: scatHeight,
-                depth: scatDepth,
-                data: scatShuffled
+            let scatteringDescriptor: TableDescriptor = .init(
+                width: scatteringWidth,
+                height: scatteringHeight,
+                depth: scatteringDepth,
+                data: scatteringShuffled
             )
 
-            let irradDesc: TableDescriptor = .init(
-                width: irradWidth,
-                height: irradHeight,
+            let irradianceDescriptor: TableDescriptor = .init(
+                width: irradianceWidth,
+                height: irradianceHeight,
                 depth: nil,
-                data: irradShuffled
+                data: irradianceShuffled
             )
 
             let entry: PlanetEntry = .init(
                 name: config.name,
                 parameters: params,
                 tables: .init(
-                    transmittance: transDesc,
-                    scattering: scatDesc,
-                    irradiance: irradDesc
+                    transmittance: transmittanceDescriptor,
+                    scattering: scatteringDescriptor,
+                    irradiance: irradianceDescriptor
                 )
             )
             planets.append(entry)

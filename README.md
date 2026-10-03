@@ -2,7 +2,7 @@
 
 🪐 &nbsp; **aura** &nbsp; 🪐
 
-a swift library abd command-line tool for precomputing multi-spectral atmospheric scattering tables
+a swift library and command-line tool for precomputing multi-spectral atmospheric scattering tables
 
 [documentation and api reference](https://swiftinit.org/docs/aura)
 

@@ -1,6 +1,26 @@
 struct Vector2<Scalar>: Hashable, CustomStringConvertible where Scalar: SIMDScalar {
     var storage: SIMD2<Scalar>
 
+    init(_ storage: SIMD2<Scalar>) {
+        self.storage = storage
+    }
+}
+
+// MARK: - Constructors
+
+extension Vector2 {
+    init(repeating repeatedValue: Scalar) {
+        self.init(.init(repeatedValue, repeatedValue))
+    }
+
+    init(_ x: Scalar, _ y: Scalar) {
+        self.init(.init(x, y))
+    }
+}
+
+// MARK: - Members
+
+extension Vector2 {
     var x: Scalar {
         get {
             self.storage.x
@@ -26,26 +46,13 @@ struct Vector2<Scalar>: Hashable, CustomStringConvertible where Scalar: SIMDScal
         "\(self.tuple)"
     }
 
-
     subscript(index: Int) -> Scalar {
         self.storage[index]
     }
 
-    init(repeating repeatedValue: Scalar) {
-        self.init(.init(repeatedValue, repeatedValue))
-    }
-
-    init(_ x: Scalar, _ y: Scalar) {
-        self.init(.init(x, y))
-    }
-
-    init(_ storage: SIMD2<Scalar>) {
-        self.storage = storage
-    }
-
     func map<Result>(_ transform: (Scalar) throws -> Result) rethrows -> Vector2<Result>
         where Result: SIMDScalar {
-        return .init(try transform(self.x), try transform(self.y))
+        .init(try transform(self.x), try transform(self.y))
     }
 }
 
@@ -60,39 +67,39 @@ extension Vector2 where Scalar: Comparable {
 
 extension Vector2 where Scalar: BinaryInteger {
     static func cast<T>(_ v: Vector2<T>) -> Self where T: BinaryFloatingPoint {
-        return v.map(Scalar.init(_:))
+        v.map(Scalar.init(_:))
     }
     static func cast<T>(_ v: Vector2<T>) -> Self where T: BinaryInteger {
-        return v.map(Scalar.init(_:))
+        v.map(Scalar.init(_:))
     }
 }
 extension Vector2 where Scalar: FloatingPoint {
     static func cast<Source>(_ v: Vector2<Source>) -> Self where Source: BinaryInteger {
-        return v.map(Scalar.init(_:))
+        v.map(Scalar.init(_:))
     }
 }
 extension Vector2 where Scalar: BinaryFloatingPoint {
     static func cast<Source>(_ v: Vector2<Source>) -> Self where Source: BinaryFloatingPoint {
-        return v.map(Scalar.init(_:))
+        v.map(Scalar.init(_:))
     }
 }
 
 extension Vector2 where Scalar: FixedWidthInteger {
     static var zero: Vector2<Scalar> {
-        return .init(.zero)
+        .init(.zero)
     }
 
     static func &<< (a: Vector2<Scalar>, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a.storage &<< b.storage)
+        .init(a.storage &<< b.storage)
     }
     static func &<< (a: Vector2<Scalar>, b: Scalar)
     -> Vector2<Scalar> {
-        return .init(a.storage &<< b)
+        .init(a.storage &<< b)
     }
     static func &<< (a: Scalar, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a &<< b.storage)
+        .init(a &<< b.storage)
     }
 
     static func &<<= (self: inout Vector2<Scalar>, b: Vector2<Scalar>) {
@@ -103,15 +110,15 @@ extension Vector2 where Scalar: FixedWidthInteger {
     }
     static func &>> (a: Vector2<Scalar>, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a.storage &>> b.storage)
+        .init(a.storage &>> b.storage)
     }
     static func &>> (a: Vector2<Scalar>, b: Scalar)
     -> Vector2<Scalar> {
-        return .init(a.storage &>> b)
+        .init(a.storage &>> b)
     }
     static func &>> (a: Scalar, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a &>> b.storage)
+        .init(a &>> b.storage)
     }
 
     static func &>>= (self: inout Vector2<Scalar>, b: Vector2<Scalar>) {
@@ -122,15 +129,15 @@ extension Vector2 where Scalar: FixedWidthInteger {
     }
     static func &+ (a: Vector2<Scalar>, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a.storage &+ b.storage)
+        .init(a.storage &+ b.storage)
     }
     static func &+ (a: Vector2<Scalar>, b: Scalar)
     -> Vector2<Scalar> {
-        return .init(a.storage &+ b)
+        .init(a.storage &+ b)
     }
     static func &+ (a: Scalar, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a &+ b.storage)
+        .init(a &+ b.storage)
     }
 
     static func &+= (self: inout Vector2<Scalar>, b: Vector2<Scalar>) {
@@ -141,15 +148,15 @@ extension Vector2 where Scalar: FixedWidthInteger {
     }
     static func &- (a: Vector2<Scalar>, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a.storage &- b.storage)
+        .init(a.storage &- b.storage)
     }
     static func &- (a: Vector2<Scalar>, b: Scalar)
     -> Vector2<Scalar> {
-        return .init(a.storage &- b)
+        .init(a.storage &- b)
     }
     static func &- (a: Scalar, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a &- b.storage)
+        .init(a &- b.storage)
     }
 
     static func &-= (self: inout Vector2<Scalar>, b: Vector2<Scalar>) {
@@ -160,15 +167,15 @@ extension Vector2 where Scalar: FixedWidthInteger {
     }
     static func &* (a: Vector2<Scalar>, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a.storage &* b.storage)
+        .init(a.storage &* b.storage)
     }
     static func &* (a: Vector2<Scalar>, b: Scalar)
     -> Vector2<Scalar> {
-        return .init(a.storage &* b)
+        .init(a.storage &* b)
     }
     static func &* (a: Scalar, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a &* b.storage)
+        .init(a &* b.storage)
     }
 
     static func &*= (self: inout Vector2<Scalar>, b: Vector2<Scalar>) {
@@ -179,15 +186,15 @@ extension Vector2 where Scalar: FixedWidthInteger {
     }
     static func / (a: Vector2<Scalar>, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a.storage / b.storage)
+        .init(a.storage / b.storage)
     }
     static func / (a: Vector2<Scalar>, b: Scalar)
     -> Vector2<Scalar> {
-        return .init(a.storage / b)
+        .init(a.storage / b)
     }
     static func / (a: Scalar, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a / b.storage)
+        .init(a / b.storage)
     }
 
     static func /= (self: inout Vector2<Scalar>, b: Vector2<Scalar>) {
@@ -198,15 +205,15 @@ extension Vector2 where Scalar: FixedWidthInteger {
     }
     static func % (a: Vector2<Scalar>, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a.storage % b.storage)
+        .init(a.storage % b.storage)
     }
     static func % (a: Vector2<Scalar>, b: Scalar)
     -> Vector2<Scalar> {
-        return .init(a.storage % b)
+        .init(a.storage % b)
     }
     static func % (a: Scalar, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a % b.storage)
+        .init(a % b.storage)
     }
 
     static func %= (self: inout Vector2<Scalar>, b: Vector2<Scalar>) {
@@ -225,14 +232,14 @@ extension Vector2 where Scalar: FixedWidthInteger {
     }
 
     var wrappingSum: Scalar {
-        return self.x &+ self.y
+        self.x &+ self.y
     }
     var wrappingVolume: Scalar {
-        return self.x &* self.y
+        self.x &* self.y
     }
 
     static func &<> (a: Vector2<Scalar>, b: Vector2<Scalar>) -> Scalar {
-        return (a &* b).wrappingSum
+        (a &* b).wrappingSum
     }
 }
 
@@ -247,24 +254,24 @@ extension Vector2 where Scalar: ExpressibleByIntegerLiteral {
 
 extension Vector2 where Scalar: FloatingPoint {
     static var zero: Vector2<Scalar> {
-        return .init(.zero)
+        .init(.zero)
     }
 
     prefix static func - (operand: Vector2<Scalar>) -> Vector2<Scalar> {
-        return .init(-operand.storage)
+        .init(-operand.storage)
     }
 
     static func + (a: Vector2<Scalar>, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a.storage + b.storage)
+        .init(a.storage + b.storage)
     }
     static func + (a: Vector2<Scalar>, b: Scalar)
     -> Vector2<Scalar> {
-        return .init(a.storage + b)
+        .init(a.storage + b)
     }
     static func + (a: Scalar, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a + b.storage)
+        .init(a + b.storage)
     }
 
     static func += (self: inout Vector2<Scalar>, b: Vector2<Scalar>) {
@@ -275,15 +282,15 @@ extension Vector2 where Scalar: FloatingPoint {
     }
     static func - (a: Vector2<Scalar>, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a.storage - b.storage)
+        .init(a.storage - b.storage)
     }
     static func - (a: Vector2<Scalar>, b: Scalar)
     -> Vector2<Scalar> {
-        return .init(a.storage - b)
+        .init(a.storage - b)
     }
     static func - (a: Scalar, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a - b.storage)
+        .init(a - b.storage)
     }
 
     static func -= (self: inout Vector2<Scalar>, b: Vector2<Scalar>) {
@@ -294,15 +301,15 @@ extension Vector2 where Scalar: FloatingPoint {
     }
     static func * (a: Vector2<Scalar>, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a.storage * b.storage)
+        .init(a.storage * b.storage)
     }
     static func * (a: Vector2<Scalar>, b: Scalar)
     -> Vector2<Scalar> {
-        return .init(a.storage * b)
+        .init(a.storage * b)
     }
     static func * (a: Scalar, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a * b.storage)
+        .init(a * b.storage)
     }
 
     static func *= (self: inout Vector2<Scalar>, b: Vector2<Scalar>) {
@@ -313,15 +320,15 @@ extension Vector2 where Scalar: FloatingPoint {
     }
     static func / (a: Vector2<Scalar>, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a.storage / b.storage)
+        .init(a.storage / b.storage)
     }
     static func / (a: Vector2<Scalar>, b: Scalar)
     -> Vector2<Scalar> {
-        return .init(a.storage / b)
+        .init(a.storage / b)
     }
     static func / (a: Scalar, b: Vector2<Scalar>)
     -> Vector2<Scalar> {
-        return .init(a / b.storage)
+        .init(a / b.storage)
     }
 
     static func /= (self: inout Vector2<Scalar>, b: Vector2<Scalar>) {
@@ -332,13 +339,13 @@ extension Vector2 where Scalar: FloatingPoint {
     }
 
     func addingProduct(_ a: Vector2<Scalar>, _ b: Vector2<Scalar>) -> Vector2<Scalar> {
-        return .init(self.storage.addingProduct(a.storage, b.storage))
+        .init(self.storage.addingProduct(a.storage, b.storage))
     }
     func addingProduct(_ a: Scalar, _ b: Vector2<Scalar>) -> Vector2<Scalar> {
-        return .init(self.storage.addingProduct(a, b.storage))
+        .init(self.storage.addingProduct(a, b.storage))
     }
     func addingProduct(_ a: Vector2<Scalar>, _ b: Scalar) -> Vector2<Scalar> {
-        return .init(self.storage.addingProduct(a.storage, b))
+        .init(self.storage.addingProduct(a.storage, b))
     }
     mutating func addProduct(_ a: Vector2<Scalar>, _ b: Vector2<Scalar>) {
         self.storage.addProduct(a.storage, b.storage)
@@ -351,11 +358,11 @@ extension Vector2 where Scalar: FloatingPoint {
     }
 
     func squareRoot() -> Vector2<Scalar> {
-        return .init(self.storage.squareRoot())
+        .init(self.storage.squareRoot())
     }
 
     func rounded(_ rule: FloatingPointRoundingRule) -> Vector2<Scalar> {
-        return .init(self.storage.rounded(rule))
+        .init(self.storage.rounded(rule))
     }
     mutating func round(_ rule: FloatingPointRoundingRule) {
         self.storage.round(rule)
@@ -363,49 +370,49 @@ extension Vector2 where Scalar: FloatingPoint {
 
     static func interpolate(_ a: Vector2<Scalar>, _ b: Vector2<Scalar>, by t: Scalar)
     -> Vector2<Scalar> {
-        return a.addingProduct(a, -t).addingProduct(b, t)
+        a.addingProduct(a, -t).addingProduct(b, t)
     }
 
 
     var sum: Scalar {
-        return self.x + self.y
+        self.x + self.y
     }
     var volume: Scalar {
-        return self.x * self.y
+        self.x * self.y
     }
 
     static func <> (a: Vector2<Scalar>, b: Vector2<Scalar>) -> Scalar {
-        return (a * b).sum
+        (a * b).sum
     }
 
     var length: Scalar {
-        return (self <> self).squareRoot()
+        (self <> self).squareRoot()
     }
 
     mutating func normalize() {
         self /= self.length
     }
     func normalized() -> Vector2<Scalar> {
-        return self / self.length
+        self / self.length
     }
 
     static func <  (v: Vector2<Scalar>, r: Scalar) -> Bool {
-        return v <> v <  r
+        v <> v <  r
     }
     static func <= (v: Vector2<Scalar>, r: Scalar) -> Bool {
-        return v <> v <= r
+        v <> v <= r
     }
     static func ~~ (v: Vector2<Scalar>, r: Scalar) -> Bool {
-        return v <> v == r
+        v <> v == r
     }
     static func !~ (v: Vector2<Scalar>, r: Scalar) -> Bool {
-        return v <> v != r
+        v <> v != r
     }
     static func >= (v: Vector2<Scalar>, r: Scalar) -> Bool {
-        return v <> v >= r
+        v <> v >= r
     }
     static func >  (v: Vector2<Scalar>, r: Scalar) -> Bool {
-        return v <> v >  r
+        v <> v >  r
     }
 }
 
@@ -423,11 +430,11 @@ extension Vector2 where Scalar: FloatingPoint {
 
 extension Vector2 where Scalar: FixedWidthInteger {
     static func &>< (a: Vector2<Scalar>, b: Vector2<Scalar>) -> Scalar {
-        return a.x &* b.y &- b.x &* a.y
+        a.x &* b.y &- b.x &* a.y
     }
 }
 extension Vector2 where Scalar: FloatingPoint {
     static func >< (a: Vector2<Scalar>, b: Vector2<Scalar>) -> Scalar {
-        return a.x * b.y - b.x * a.y
+        a.x * b.y - b.x * a.y
     }
 }

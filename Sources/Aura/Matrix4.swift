@@ -1,8 +1,14 @@
 struct Matrix4<T>: Equatable where T: SIMDScalar {
     private var columns: (Vector4<T>, Vector4<T>, Vector4<T>, Vector4<T>)
 
+    init(_ v0: Vector4<T>, _ v1: Vector4<T>, _ v2: Vector4<T>, _ v3: Vector4<T>) {
+        self.columns = (v0, v1, v2, v3)
+    }
+}
+
+extension Matrix4 {
     var transposed: Matrix4<T> {
-        return .init(
+        .init(
             .init(self.columns.0.x, self.columns.1.x, self.columns.2.x, self.columns.3.x),
             .init(self.columns.0.y, self.columns.1.y, self.columns.2.y, self.columns.3.y),
             .init(self.columns.0.z, self.columns.1.z, self.columns.2.z, self.columns.3.z),
@@ -11,7 +17,7 @@ struct Matrix4<T>: Equatable where T: SIMDScalar {
     }
 
     var matrix3: Matrix3<T> {
-        return .init(self.columns.0.xyz, self.columns.1.xyz, self.columns.2.xyz)
+        .init(self.columns.0.xyz, self.columns.1.xyz, self.columns.2.xyz)
     }
 
     @inline(__always) subscript(column: Int) -> Vector4<T> {
@@ -45,18 +51,14 @@ struct Matrix4<T>: Equatable where T: SIMDScalar {
         }
     }
 
-    init(_ v0: Vector4<T>, _ v1: Vector4<T>, _ v2: Vector4<T>, _ v3: Vector4<T>) {
-        self.columns = (v0, v1, v2, v3)
-    }
-
     static func == (a: Self, b: Self) -> Bool {
-        return a.columns.0 == b.columns.0 && a.columns.1 == b.columns.1 && a.columns.2 == b.columns.2 && a.columns.3 == b.columns.3
+        a.columns.0 == b.columns.0 && a.columns.1 == b.columns.1 && a.columns.2 == b.columns.2 && a.columns.3 == b.columns.3
     }
 }
 
 extension Matrix4 where T: Numeric {
     static var identity: Matrix4<T> {
-        return .init(
+        .init(
             .init(1, 0, 0, 0),
             .init(0, 1, 0, 0),
             .init(0, 0, 1, 0),
@@ -66,16 +68,16 @@ extension Matrix4 where T: Numeric {
 }
 extension Matrix4 where T: FixedWidthInteger {
     static func &>< (A: Matrix4<T>, v: Vector4<T>) -> Vector4<T> {
-        return A.columns.0 &* v.x &+ A.columns.1 &* v.y &+ A.columns.2 &* v.z &+ A.columns.3 &* v.w
+        A.columns.0 &* v.x &+ A.columns.1 &* v.y &+ A.columns.2 &* v.z &+ A.columns.3 &* v.w
     }
 
     static func &>< (A: Matrix4<T>, B: Matrix4<T>) -> Matrix4<T> {
-        return .init(A &>< B.columns.0, A &>< B.columns.1, A &>< B.columns.2, A &>< B.columns.3)
+        .init(A &>< B.columns.0, A &>< B.columns.1, A &>< B.columns.2, A &>< B.columns.3)
     }
 }
 extension Matrix4 where T: FloatingPoint {
     static func >< (A: Matrix4<T>, v: Vector4<T>) -> Vector4<T> {
-        return (A.columns.0 * v.x).addingProduct(A.columns.1, v.y).addingProduct(
+        (A.columns.0 * v.x).addingProduct(A.columns.1, v.y).addingProduct(
             A.columns.2,
             v.z
         ).addingProduct(
@@ -85,6 +87,6 @@ extension Matrix4 where T: FloatingPoint {
     }
 
     static func >< (A: Matrix4<T>, B: Matrix4<T>) -> Matrix4<T> {
-        return .init(A >< B.columns.0, A >< B.columns.1, A >< B.columns.2, A >< B.columns.3)
+        .init(A >< B.columns.0, A >< B.columns.1, A >< B.columns.2, A >< B.columns.3)
     }
 }

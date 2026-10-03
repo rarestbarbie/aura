@@ -102,25 +102,25 @@ extension Table.Transmittance {
     ) -> (rayleigh: Vector3<Double>, mie: Vector3<Double>) {
         self.atmosphere.assert(r: r, μ: μ)
         Atmosphere.assert(μs: μs, ν: ν)
-        let l: Double = self.atmosphere.distanceToBoundary(
+        let distance: Double = self.atmosphere.distanceToBoundary(
             r: r,
             μ: μ,
             intersectsGround: intersectsGround
         ),
-        Δx: Double = l / .init(samples)
+        Δx: Double = distance / .init(samples)
         // Perform integral
         var sum: (rayleigh: Vector3<Double>, mie: Vector3<Double>) = (.zero, .zero)
         for i: Int in 0 ... samples /* inclusive range because trapezoidal rule*/ {
             let d: Double = .init(i) * Δx
-            let (Rs, Ms): (Vector3<Double>, Vector3<Double>) =
+            let (rayleigh, mie): (Vector3<Double>, Vector3<Double>) =
             self.singleScatteringIntegrand(
                 r: r, μ: μ, μs: μs, ν: ν, d: d,
                 intersectsGround: intersectsGround
             )
             // Trapezoidal rule
             let w: Double = i == 0 || i == samples ? 0.5 : 1
-            sum.rayleigh += Rs * w
-            sum.mie      += Ms * w
+            sum.rayleigh += rayleigh * w
+            sum.mie      += mie * w
         }
 
         return (
@@ -183,7 +183,7 @@ extension Table.Transmittance: CustomStringConvertible {
         {
         \((0 ..< self.size.y).map {
                 (y: Int) in
-                return """
+                """
                     [\(y)]:
                 \((0 ..< self.size.x).map {
                         (x: Int) in

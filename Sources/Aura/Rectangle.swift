@@ -1,9 +1,15 @@
 struct Rectangle<T>: Equatable where T: SIMDScalar {
     var storage: SIMD4<T>
 
+    init(_ storage: SIMD4<T>) {
+        self.storage = storage
+    }
+}
+
+extension Rectangle {
     var a: Vector2<T> {
         get {
-            return .init(self.storage.x, self.storage.y)
+            .init(self.storage.x, self.storage.y)
         }
         set(a) {
             self.storage.x = a.x
@@ -12,7 +18,7 @@ struct Rectangle<T>: Equatable where T: SIMDScalar {
     }
     var b: Vector2<T> {
         get {
-            return .init(self.storage.z, self.storage.w)
+            .init(self.storage.z, self.storage.w)
         }
         set(b) {
             self.storage.z = b.x
@@ -24,13 +30,9 @@ struct Rectangle<T>: Equatable where T: SIMDScalar {
         self.init(.init(a.x, a.y, b.x, b.y))
     }
 
-    init(_ storage: SIMD4<T>) {
-        self.storage = storage
-    }
-
     func map<Result>(_ transform: (T) throws -> Result) rethrows -> Rectangle<Result>
         where Result: SIMDScalar {
-        return  .init(
+        .init(
             .init(
                 try transform(self.storage.x),
                 try transform(self.storage.y),
@@ -40,44 +42,45 @@ struct Rectangle<T>: Equatable where T: SIMDScalar {
         )
     }
 }
+
 extension Rectangle where T: FixedWidthInteger {
     static var zero: Rectangle<T> {
-        return .init(.zero)
+        .init(.zero)
     }
     var size: Vector2<T> {
-        return self.b &- self.a
+        self.b &- self.a
     }
 }
 extension Rectangle where T: FloatingPoint {
     static var zero: Rectangle<T> {
-        return .init(.zero)
+        .init(.zero)
     }
     var size: Vector2<T> {
-        return self.b - self.a
+        self.b - self.a
     }
 }
 extension Rectangle where T: FloatingPoint & ExpressibleByFloatLiteral {
     var midpoint: Vector2<T> {
-        return 0.5 * (self.a + self.b)
+        0.5 * (self.a + self.b)
     }
 }
 
 
 extension Rectangle where T: BinaryInteger {
     static func cast<Source>(_ v: Rectangle<Source>) -> Self where Source: BinaryFloatingPoint {
-        return v.map(T.init(_:))
+        v.map(T.init(_:))
     }
     static func cast<Source>(_ v: Rectangle<Source>) -> Self where Source: BinaryInteger {
-        return v.map(T.init(_:))
+        v.map(T.init(_:))
     }
 }
 extension Rectangle where T: FloatingPoint {
     static func cast<Source>(_ v: Rectangle<Source>) -> Self where Source: BinaryInteger {
-        return v.map(T.init(_:))
+        v.map(T.init(_:))
     }
 }
 extension Rectangle where T: BinaryFloatingPoint {
     static func cast<Source>(_ v: Rectangle<Source>) -> Self where Source: BinaryFloatingPoint {
-        return v.map(T.init(_:))
+        v.map(T.init(_:))
     }
 }

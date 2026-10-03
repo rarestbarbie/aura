@@ -9,5 +9,3 @@ extension AtmosphereArchive {
         case bufferOutOfBounds
     }
 }
-
-public typealias AtmosphereArchiveError = AtmosphereArchive.Error
