@@ -232,30 +232,30 @@ extension AtmosphereConfig {
                 }
             }
 
-            let val: Substring = cleanText[valueStart ..< index]
+            let value: Substring = cleanText[valueStart ..< index]
             while index < cleanText.endIndex && (
                     cleanText[index] == "," || cleanText[index].isWhitespace
                 ) {
                 index = cleanText.index(after: index)
             }
-            values[String(key)] = String(val)
+            values[String(key)] = String(value)
         }
 
         func parseDouble(_ key: String) throws -> Double {
-            guard let str: String = values[key], let val: Double = Double(str) else {
+            guard let str: String = values[key], let value: Double = Double(str) else {
                 throw AtmosphereError.invalidConfigFile(
-                    "Missing or invalid double property ‘\(key)’"
+                    "Missing or invalid double property '\(key)'"
                 )
             }
-            return val
+            return value
         }
 
         func parseOptionalDouble(_ key: String, default: Double? = nil) throws -> Double? {
             guard let str: String = values[key] else { return `default` }
-            guard let val: Double = Double(str) else {
-                throw AtmosphereError.invalidConfigFile("Invalid double property ‘\(key)’")
+            guard let value: Double = Double(str) else {
+                throw AtmosphereError.invalidConfigFile("Invalid double property '\(key)'")
             }
-            return val
+            return value
         }
 
         func parseDoubleArray(_ key: String) throws -> [Double] {
@@ -348,11 +348,11 @@ extension AtmosphereConfig {
         if let ozone: [Double] = self.ozone_extinction {
             output += "    // Absorption / Ozone layer\n"
             output += "    ozone_extinction: \(ozone),\n"
-            if let alt: Double = self.ozone_altitude {
-                output += "    ozone_altitude: \(alt),\n"
+            if let altitude: Double = self.ozone_altitude {
+                output += "    ozone_altitude: \(altitude),\n"
             }
-            if let thick: Double = self.ozone_thickness {
-                output += "    ozone_thickness: \(thick),\n"
+            if let thickness: Double = self.ozone_thickness {
+                output += "    ozone_thickness: \(thickness),\n"
             }
             output += "\n"
         }

@@ -737,15 +737,15 @@ extension Atmosphere {
         let ozoneProfile: DensityProfile
         let ozoneExtinction: Vector3<Double>
         if let ozone = config.ozone_extinction, ozone.count == 3 {
-            let alt: Double = config.ozone_altitude ?? 25000.0
-            let thick: Double = config.ozone_thickness ?? 15000.0
+            let altitude: Double = config.ozone_altitude ?? 25000.0
+            let thickness: Double = config.ozone_thickness ?? 15000.0
             let ozoneLayer0: DensityProfile.Layer = .init(
-                thickness: alt,
-                coefficients: (0, 1.0 / thick, -(alt - thick) / thick),
+                thickness: altitude,
+                coefficients: (0, 1.0 / thickness, -(altitude - thickness) / thickness),
                 H: .infinity
             )
             let ozoneLayer1: DensityProfile.Layer = .init(
-                coefficients: (0, -1.0 / thick, (alt + thick) / thick),
+                coefficients: (0, -1.0 / thickness, (altitude + thickness) / thickness),
                 H: .infinity
             )
             ozoneProfile = .init(ozoneLayer0, ozoneLayer1)
